@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crit Tomato</title>
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Title bar (drag region for frameless window) -->
+    <header id="titlebar" data-tauri-drag-region>
+      <span class="app-name">🍅 Crit Tomato</span>
+        <button id="btn-lang" class="win-btn" title="Switch Language">🌐</button>
+      <div class="window-controls">
+        <button id="btn-pin" class="win-btn" title="Toggle Always on Top">📌</button>
+        <button id="btn-minimize" class="win-btn" title="Minimize to Tray">─</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Main Clock -->
+      <section id="main-clock" class="clock-section">
+        <div class="time" id="local-time">00:00:00</div>
+        <div class="date" id="local-date">Wednesday, January 1</div>
+        <div class="tz-indicator" id="tz-indicator" data-i18n="tz.local">🏠 Local</div>
+        <div class="format-row">
+          <button id="btn-format" class="small-btn" data-i18n="format.24h">24h</button>
+        </div>
+      </section>
+
+      <!-- Timezones -->
+      <section id="timezones" class="tz-section">
+        <div class="section-header">
+          <h3 data-i18n="tz.title">🌍 Time Zone</h3>
+        </div>
+        <div class="tz-selector">
+          <select id="tz-select" class="tz-select">
+            <option value="local" data-i18n="tz.local">🏠 Local</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Pomodoro Timer -->
+      <section id="pomodoro" class="pomo-section">
+        <div class="section-header">
+          <h3 data-i18n="pomo.title">⏱ Pomodoro</h3>
+        </div>
+        <div class="pomo-ring-container">
+          <svg class="pomo-ring" viewBox="0 0 120 120">
+            <circle class="pomo-ring-bg" cx="60" cy="60" r="52" />
+            <circle class="pomo-ring-progress" cx="60" cy="60" r="52"
+                    id="pomo-circle" />
+          </svg>
+          <div class="pomo-time" id="pomo-display">25:00</div>
+        </div>
+        <div class="pomo-label" id="pomo-label" data-i18n="pomo.ready">🍅 Ready</div>
+        <div class="pomo-controls">
+          <button id="btn-pomo-start" class="pomo-btn start" data-i18n="pomo.start">▶ Start</button>
+          <button id="btn-pomo-reset" class="pomo-btn reset" data-i18n="pomo.reset">↺ Reset</button>
+        </div>
+        <div class="pomo-settings">
+          <label><span data-i18n="pomo.work_label">Work</span> <input type="number" id="work-minutes" value="25" min="1" max="120"> <span data-i18n="pomo.min">min</span></label>
+          <label><span data-i18n="pomo.break_label">Break</span> <input type="number" id="break-minutes" value="5" min="1" max="60"> <span data-i18n="pomo.min">min</span></label>
+        </div>
+        <div class="pomo-counter">
+          🍅 × <span id="tomato-count">0</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

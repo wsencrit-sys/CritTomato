@@ -1,0 +1,535 @@
+/* ===== CSS Custom Properties ===== */
+:root {
+  --bg-primary: #1a1a2e;
+  --bg-surface: #16213e;
+  --bg-hover: #1f3056;
+  --text-primary: #eee;
+  --text-secondary: #aaa;
+  --text-muted: #666;
+  --accent: #e63946;
+  --accent-glow: rgba(230, 57, 70, 0.3);
+  --accent-light: #ff6b6b;
+  --border: #2a2a4a;
+  --radius: 12px;
+  --radius-sm: 6px;
+  --font-mono: 'Consolas', 'Cascadia Code', 'JetBrains Mono', monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --transition: 0.2s ease;
+}
+
+/* ===== Reset ===== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  border-radius: var(--radius);
+}
+
+/* ===== App Container ===== */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* ===== Title Bar ===== */
+#titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag;
+  flex-shrink: 0;
+}
+
+.app-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+
+.window-controls {
+  display: flex;
+  gap: 4px;
+  -webkit-app-region: no-drag;
+}
+
+.win-btn {
+  width: 28px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition);
+}
+
+.win-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+#btn-minimize {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* ===== Main Content ===== */
+main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Scrollbar */
+main::-webkit-scrollbar {
+  width: 4px;
+}
+
+main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+main::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+/* ===== Main Clock ===== */
+.clock-section {
+  text-align: center;
+  padding: 12px 0 8px;
+}
+
+.time {
+  font-family: var(--font-mono);
+  font-size: 52px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+  text-shadow: 0 0 30px var(--accent-glow);
+  line-height: 1.1;
+}
+
+.date {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.format-row {
+  margin-top: 6px;
+}
+
+.tz-indicator {
+  font-size: 11px;
+  color: var(--accent-light);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ===== Small Button ===== */
+.small-btn {
+  padding: 3px 10px;
+  font-size: 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-sans);
+}
+
+.small-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
+
+/* ===== Section Header ===== */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.section-header h3 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===== Timezone Selector ===== */
+.tz-section {
+  background: var(--bg-surface);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.tz-selector {
+  display: flex;
+  justify-content: center;
+}
+
+.tz-selector select.tz-select {
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+
+.tz-selector select.tz-select:hover {
+  border-color: var(--accent);
+}
+
+.tz-selector select.tz-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.tz-selector select.tz-select option {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+/* ===== Pomodoro ===== */
+.pomo-section {
+  background: var(--bg-surface);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.pomo-ring-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 8px auto;
+}
+
+.pomo-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.pomo-ring-bg {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 6;
+}
+
+.pomo-ring-progress {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 326.73;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.5s ease, stroke 0.3s ease;
+}
+
+.pomo-ring-progress.break {
+  stroke: #4ecdc4;
+}
+
+.pomo-time {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.pomo-label {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 8px;
+  color: var(--accent-light);
+  transition: color 0.3s ease;
+}
+
+.pomo-label.break-label {
+  color: #4ecdc4;
+}
+
+.pomo-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.pomo-btn {
+  padding: 7px 18px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-sans);
+}
+
+.pomo-btn.start {
+  background: var(--accent);
+  color: white;
+}
+
+.pomo-btn.start:hover {
+  background: #c8303e;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.pomo-btn.start.pause {
+  background: #f4a261;
+  color: #1a1a2e;
+}
+
+.pomo-btn.reset {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.pomo-btn.reset:hover {
+  background: var(--border);
+  color: var(--text-primary);
+}
+
+.pomo-settings {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.pomo-settings label {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pomo-settings input {
+  width: 44px;
+  padding: 2px 4px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  text-align: center;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+}
+
+.pomo-settings input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Hide number input spinners */
+.pomo-settings input[type="number"]::-webkit-inner-spin-button,
+.pomo-settings input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.pomo-counter {
+  text-align: center;
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.pomo-counter span {
+  font-weight: 700;
+  color: var(--accent-light);
+}
+
+/* ===== Animations ===== */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.pomo-label.running {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* ===== Mini Mode ===== */
+
+body.mini-mode {
+  background: transparent;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+body.mini-mode #app {
+  background: transparent;
+  overflow: hidden;
+  border-radius: 0;
+}
+
+/* Titlebar: hidden by default, revealed on hover */
+body.mini-mode #titlebar {
+  background: transparent;
+  border-bottom: none;
+  padding: 2px 6px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+body.mini-mode:hover #titlebar {
+  opacity: 1;
+}
+
+body.mini-mode .app-name {
+  display: none;
+}
+
+/* Window controls & lang button: hidden, revealed on hover */
+body.mini-mode .window-controls,
+body.mini-mode #btn-lang {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+body.mini-mode:hover .window-controls,
+body.mini-mode:hover #btn-lang {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Hide non-essential sections permanently */
+body.mini-mode #timezones,
+body.mini-mode .pomo-section {
+  display: none;
+}
+
+body.mini-mode .format-row,
+body.mini-mode .tz-indicator {
+  display: none;
+}
+
+/* Mini clock digits — always visible, floating on desktop */
+body.mini-mode main {
+  padding: 8px;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+}
+
+body.mini-mode .clock-section {
+  padding: 2px 0;
+}
+
+body.mini-mode .time {
+  font-size: 36px;
+  text-shadow: 0 0 6px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5);
+  letter-spacing: 2px;
+}
+
+body.mini-mode .date {
+  font-size: 11px;
+  text-shadow: 0 0 4px rgba(0,0,0,0.8);
+}
+
+/* Pomodoro in mini-mode: hidden by default, shown on hover when running/paused */
+body.mini-mode .pomo-section.mini-visible {
+  display: block;
+  background: transparent;
+  padding: 4px 8px;
+  border-radius: 0;
+  margin-top: 2px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+body.mini-mode:hover .pomo-section.mini-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.mini-mode .pomo-section.mini-visible .section-header {
+  display: none;
+}
+
+body.mini-mode .pomo-section.mini-visible .pomo-ring-container {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 2px;
+}
+
+body.mini-mode .pomo-section.mini-visible .pomo-time {
+  font-size: 14px;
+  text-shadow: 0 0 4px rgba(0,0,0,0.8);
+}
+
+body.mini-mode .pomo-section.mini-visible .pomo-label {
+  font-size: 11px;
+  margin-top: 1px;
+  text-shadow: 0 0 3px rgba(0,0,0,0.8);
+}
+
+body.mini-mode .pomo-section.mini-visible .pomo-settings {
+  display: none;
+}
+
+body.mini-mode .pomo-section.mini-visible .pomo-counter {
+  display: none;
+}
+
+body.mini-mode .pomo-section.mini-visible .pomo-controls {
+  margin-top: 4px;
+  gap: 6px;
+}
+
+body.mini-mode .pomo-section.mini-visible .pomo-btn {
+  padding: 3px 10px;
+  font-size: 11px;
+}
