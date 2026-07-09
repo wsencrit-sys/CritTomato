@@ -13,26 +13,29 @@ const translations = {
     'format.24h': '24h',
     'format.12h': '12h',
 
+    // Language
+    'lang.label': 'Language',
+
     // Timezones
-    'tz.title': '🌍 Time Zone',
-    'tz.local': '🏠 Local',
+    'tz.title': 'Time Zone',
+    'tz.local': 'Local',
 
     // Pomodoro
-    'pomo.title': '⏱ Pomodoro',
-    'pomo.ready': '🍅 Ready',
-    'pomo.focus': '🍅 Focus',
-    'pomo.break': '☕ Break',
-    'pomo.paused': '⏸ Paused',
-    'pomo.start': '▶ Start',
-    'pomo.pause': '⏸ Pause',
-    'pomo.resume': '▶ Resume',
-    'pomo.reset': '↺ Reset',
+    'pomo.title': 'Pomodoro',
+    'pomo.ready': 'Ready',
+    'pomo.focus': 'Focus',
+    'pomo.break': 'Break',
+    'pomo.paused': 'Paused',
+    'pomo.start': 'Start',
+    'pomo.pause': 'Pause',
+    'pomo.resume': 'Resume',
+    'pomo.reset': 'Reset',
     'pomo.work_label': 'Work',
     'pomo.break_label': 'Break',
     'pomo.min': 'min',
     'pomo.notify.break_title': 'Crit Tomato',
     'pomo.notify.break_body': 'Break finished! Time to focus.',
-    'pomo.notify.done_title': '🍅 Pomodoro Complete!',
+    'pomo.notify.done_title': 'Pomodoro Complete!',
     'pomo.notify.done_body': "You've finished {count} tomato{plural}. Take a break!",
   },
 
@@ -41,26 +44,29 @@ const translations = {
     'format.24h': '24时',
     'format.12h': '12时',
 
+    // Language
+    'lang.label': '语言',
+
     // Timezones
-    'tz.title': '🌍 时区',
-    'tz.local': '🏠 本地',
+    'tz.title': '时区',
+    'tz.local': '本地',
 
     // Pomodoro
-    'pomo.title': '⏱ 番茄钟',
-    'pomo.ready': '🍅 准备就绪',
-    'pomo.focus': '🍅 专注中',
-    'pomo.break': '☕ 休息',
-    'pomo.paused': '⏸ 已暂停',
-    'pomo.start': '▶ 开始',
-    'pomo.pause': '⏸ 暂停',
-    'pomo.resume': '▶ 继续',
-    'pomo.reset': '↺ 重置',
+    'pomo.title': '番茄钟',
+    'pomo.ready': '准备就绪',
+    'pomo.focus': '专注中',
+    'pomo.break': '休息',
+    'pomo.paused': '已暂停',
+    'pomo.start': '开始',
+    'pomo.pause': '暂停',
+    'pomo.resume': '继续',
+    'pomo.reset': '重置',
     'pomo.work_label': '工作时长',
     'pomo.break_label': '休息时长',
     'pomo.min': '分钟',
     'pomo.notify.break_title': 'Crit Tomato',
     'pomo.notify.break_body': '休息结束！该专注了。',
-    'pomo.notify.done_title': '🍅 番茄钟完成！',
+    'pomo.notify.done_title': '番茄钟完成！',
     'pomo.notify.done_body': '你已完成 {count} 个番茄{plural}。休息一下吧！',
   },
 };

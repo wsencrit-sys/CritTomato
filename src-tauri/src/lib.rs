@@ -21,45 +21,6 @@ fn is_chinese_locale() -> bool {
     false
 }
 
-/// Create a simple tomato-red circle tray icon (32x32 RGBA)
-fn create_tomato_icon() -> tauri::image::Image<'static> {
-    let size: u32 = 32;
-    let mut rgba = Vec::with_capacity((size * size * 4) as usize);
-    let center = size as f32 / 2.0;
-    let radius = size as f32 / 2.0 - 3.0;
-
-    for y in 0..size {
-        for x in 0..size {
-            let dx = x as f32 - center + 0.5;
-            let dy = y as f32 - center + 0.5;
-            let dist = (dx * dx + dy * dy).sqrt();
-
-            if dist <= radius {
-                // Inner: tomato red gradient
-                let gradient = 1.0 - (dist / radius) * 0.3;
-                rgba.push((230.0 * gradient) as u8); // R
-                rgba.push((70.0 * gradient) as u8);  // G
-                rgba.push((55.0 * gradient) as u8);  // B
-                rgba.push(255);                        // A
-            } else if dist <= radius + 1.5 {
-                // Edge: darker red border
-                rgba.push(180);
-                rgba.push(45);
-                rgba.push(35);
-                rgba.push(255);
-            } else {
-                // Transparent
-                rgba.push(0);
-                rgba.push(0);
-                rgba.push(0);
-                rgba.push(0);
-            }
-        }
-    }
-
-    tauri::image::Image::new_owned(rgba, size, size)
-}
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -75,10 +36,12 @@ pub fn run() {
             let quit_item = MenuItem::with_id(app, "quit", quit_label, true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&show_item, &quit_item])?;
 
-            let tomato_icon = create_tomato_icon();
+            let tray_icon = tauri::image::Image::from_bytes(
+                include_bytes!("../icons/32x32.png")
+            ).expect("Failed to load tray icon");
 
             let _tray = TrayIconBuilder::new()
-                .icon(tomato_icon)
+                .icon(tray_icon)
                 .tooltip("Crit Tomato")
                 .menu(&menu)
                 .on_menu_event(|app, event| match event.id.as_ref() {

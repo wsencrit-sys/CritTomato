@@ -36,6 +36,7 @@ class App {
       this.clock.setTimezone({ id: e.detail.id, city: e.detail.city });
     });
 
+    this.setupFontSelector();
     this.setupWindowControls();
     this.setupLangToggle();
   }
@@ -63,10 +64,11 @@ class App {
   async enterMiniMode(win) {
     const pomoActive = this.pomodoro.status !== 'idle';
 
-    // Shrink window
+    // Shrink window, keep resizable for manual resize
     const height = pomoActive ? 140 : 76;
     await win.setSize({ type: 'Logical', width: 220, height });
-    await win.setResizable(false);
+    await win.setMinSize({ type: 'Logical', width: 140, height: 60 });
+    await win.setResizable(true);
 
     document.body.classList.add('mini-mode');
     document.getElementById('btn-minimize').textContent = '☰';
@@ -92,6 +94,7 @@ class App {
 
   async exitMiniMode(win) {
     await win.setSize({ type: 'Logical', width: 320, height: 520 });
+    await win.setMinSize({ type: 'Logical', width: 0, height: 0 });
     await win.setResizable(true);
 
     document.body.classList.remove('mini-mode');
@@ -109,6 +112,69 @@ class App {
     try {
       await win.setSize({ type: 'Logical', width: 220, height: h });
     } catch { /* ignore */ }
+  }
+
+  /* ---- Font Selector ---- */
+
+  // Curated list of well-designed monospace fonts commonly available
+  static FONT_LIST = [
+    'Consolas',
+    'Cascadia Code',
+    'Cascadia Mono',
+    'JetBrains Mono',
+    'Fira Code',
+    'Fira Mono',
+    'Source Code Pro',
+    'Courier New',
+    'Menlo',
+    'Monaco',
+    'SF Mono',
+    'IBM Plex Mono',
+    'Roboto Mono',
+    'Ubuntu Mono',
+    'DejaVu Sans Mono',
+    'Liberation Mono',
+    'Lucida Console',
+  ];
+
+  setupFontSelector() {
+    const sel = document.getElementById('font-select');
+
+    // Default option
+    const defaultOpt = document.createElement('option');
+    defaultOpt.value = '';
+    defaultOpt.textContent = 'Default';
+    sel.appendChild(defaultOpt);
+
+    // Fill options
+    for (const name of App.FONT_LIST) {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      sel.appendChild(opt);
+    }
+
+    // Load saved preference
+    const saved = localStorage.getItem('crit-tomato-font');
+    if (saved) {
+      sel.value = saved;
+      this.applyFont(saved);
+    }
+
+    sel.addEventListener('change', () => {
+      const font = sel.value;
+      this.applyFont(font);
+      try { localStorage.setItem('crit-tomato-font', font); } catch { /* ignore */ }
+    });
+  }
+
+  applyFont(font) {
+    if (font) {
+      document.documentElement.style.setProperty('--font-mono', `"${font}", monospace`);
+    } else {
+      // Reset to CSS default
+      document.documentElement.style.removeProperty('--font-mono');
+    }
   }
 
   /* ---- Window Controls ---- */

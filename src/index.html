@@ -10,8 +10,8 @@
   <div id="app">
     <!-- Title bar (drag region for frameless window) -->
     <header id="titlebar" data-tauri-drag-region>
-      <span class="app-name">🍅 Crit Tomato</span>
-        <button id="btn-lang" class="win-btn" title="Switch Language">🌐</button>
+      <span class="app-name">Crit Tomato</span>
+        <button id="btn-lang" class="win-btn lang-btn" title="Switch Language" data-i18n="lang.label">Language</button>
       <div class="window-controls">
         <button id="btn-pin" class="win-btn" title="Toggle Always on Top">📌</button>
         <button id="btn-minimize" class="win-btn" title="Minimize to Tray">─</button>
@@ -26,6 +26,10 @@
         <div class="tz-indicator" id="tz-indicator" data-i18n="tz.local">🏠 Local</div>
         <div class="format-row">
           <button id="btn-format" class="small-btn" data-i18n="format.24h">24h</button>
+        </div>
+        <div class="font-row">
+          <select id="font-select" class="font-select">
+          </select>
         </div>
       </section>
 
@@ -68,6 +72,8 @@
         </div>
       </section>
     </main>
+    <!-- Resize grip (visible in mini mode) -->
+    <div id="resize-grip" class="resize-grip"></div>
   </div>
 
   <script type="module" src="js/app.js"></script>
