@@ -37,12 +37,16 @@ const translations = {
     'pomo.notify.break_body': 'Break finished! Time to focus.',
     'pomo.notify.done_title': 'Pomodoro Complete!',
     'pomo.notify.done_body': "You've finished {count} tomato{plural}. Take a break!",
+    'pomo.break_popup': 'Break time, stand up!',
+    'pomo.break_go': 'Get Moving',
+    'pomo.focus_popup': 'Focus time!',
+    'pomo.focus_go': 'Get to Work',
   },
 
   'zh-CN': {
     // Clock
-    'format.24h': '24时',
-    'format.12h': '12时',
+    'format.24h': '24小时',
+    'format.12h': '12小时',
 
     // Language
     'lang.label': '语言',
@@ -68,6 +72,10 @@ const translations = {
     'pomo.notify.break_body': '休息结束！该专注了。',
     'pomo.notify.done_title': '番茄钟完成！',
     'pomo.notify.done_body': '你已完成 {count} 个番茄{plural}。休息一下吧！',
+    'pomo.break_popup': '休息时间，起立！',
+    'pomo.break_go': '去活动',
+    'pomo.focus_popup': '专注时间！',
+    'pomo.focus_go': '去工作',
   },
 };
 

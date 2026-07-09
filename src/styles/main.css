@@ -1,3 +1,12 @@
+/* ===== Font: Sarasa Gothic SC (更纱黑体 SC Light) ===== */
+@font-face {
+  font-family: 'Sarasa Gothic SC';
+  src: url('../fonts/SarasaGothicSC-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ===== CSS Custom Properties ===== */
 :root {
   --bg-primary: rgba(18, 18, 20, 0.72);
@@ -12,8 +21,8 @@
   --border: rgba(255, 255, 255, 0.07);
   --radius: 12px;
   --radius-sm: 6px;
-  --font-mono: 'Consolas', 'Cascadia Code', 'JetBrains Mono', monospace;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Sarasa Gothic SC', monospace;
+  --font-sans: 'Sarasa Gothic SC', system-ui, sans-serif;
   --transition: 0.25s ease;
   --glass-blur: 24px;
 }
@@ -46,6 +55,7 @@ body {
 
 /* ===== App Container ===== */
 #app {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -55,6 +65,64 @@ body {
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   isolation: isolate;
+}
+
+/* ===== Settings Dropdown ===== */
+.settings-wrap {
+  position: relative;
+  -webkit-app-region: no-drag;
+}
+
+.icon-gear {
+  width: 15px;
+  height: 15px;
+  color: var(--text-secondary);
+  transition: color var(--transition), transform 0.4s ease;
+}
+
+.win-btn:hover .icon-gear {
+  color: var(--text-primary);
+  transform: rotate(60deg);
+}
+
+.settings-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: rgba(28, 28, 32, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  z-index: 200;
+  min-width: 110px;
+}
+
+.settings-dropdown.show {
+  display: block;
+}
+
+.settings-item {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all var(--transition);
+}
+
+.settings-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 /* ===== Title Bar ===== */
@@ -107,19 +175,11 @@ body {
   line-height: 1;
 }
 
-.lang-btn {
-  width: auto !important;
-  padding: 0 8px !important;
-  font-size: 11px !important;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-}
-
 /* ===== Main Content ===== */
 main {
   flex: 1;
   overflow: hidden;
-  padding: 16px;
+  padding: 10px 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -145,57 +205,37 @@ main {
   font-size: 13px;
   color: var(--text-secondary);
   margin-top: 4px;
-}
-
-.format-row {
-  margin-top: 6px;
+  letter-spacing: 1px;
 }
 
 .tz-indicator {
-  font-size: 11px;
+  display: none;
+}
+
+/* ===== SVG Icons ===== */
+.icon-pin {
+  width: 14px;
+  height: 14px;
   color: var(--text-secondary);
-  margin-top: 4px;
-  font-weight: 500;
+  transition: color var(--transition);
 }
 
-/* ===== Font Selector ===== */
-.font-row {
-  margin-top: 8px;
-  display: flex;
-  justify-content: center;
-}
-
-.font-select {
-  padding: 3px 8px;
-  font-size: 11px;
-  font-family: var(--font-sans);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  cursor: pointer;
-  max-width: 180px;
-  transition: border-color var(--transition);
-}
-
-.font-select:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.font-select:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.font-select option {
-  background: #1c1c20;
+.win-btn:hover .icon-pin {
   color: var(--text-primary);
+}
+
+.icon-tomato {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+  margin-right: 2px;
+  flex-shrink: 0;
 }
 
 /* ===== Small Button ===== */
 .small-btn {
   padding: 3px 10px;
-  font-size: 11px;
+  font-size: 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-surface);
@@ -301,7 +341,7 @@ main {
 
 .pomo-ring-progress {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--accent);       /* focus: red */
   stroke-width: 6;
   stroke-linecap: round;
   stroke-dasharray: 326.73;
@@ -309,8 +349,12 @@ main {
   transition: stroke-dashoffset 0.5s ease, stroke 0.3s ease;
 }
 
+.pomo-ring-progress.paused {
+  stroke: #f0b828;             /* paused: yellow */
+}
+
 .pomo-ring-progress.break {
-  stroke: rgba(255, 255, 255, 0.5);
+  stroke: #4caf84;             /* break: green */
 }
 
 .pomo-time {
@@ -325,6 +369,10 @@ main {
 }
 
 .pomo-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
   text-align: center;
   font-size: 13px;
   font-weight: 600;
@@ -420,6 +468,10 @@ main {
 }
 
 .pomo-counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
   text-align: center;
   margin-top: 8px;
   font-size: 14px;
@@ -460,6 +512,38 @@ body.mini-mode .resize-grip {
 body.mini-mode:hover .resize-grip {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* ===== Break Popup ===== */
+.break-popup {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  background: rgba(12, 12, 14, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+}
+
+.break-popup.show {
+  display: flex;
+}
+
+.break-popup-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.break-popup-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 /* ===== Animations ===== */
@@ -511,8 +595,6 @@ body.mini-mode #titlebar {
   transition: opacity 0.25s ease;
 }
 
-body.mini-mode .app-name { display: none; }
-
 /* ── 2. main: fill window, center clock only ── */
 body.mini-mode main {
   display: flex;
@@ -530,29 +612,20 @@ body.mini-mode main > *:not(#main-clock):not(#pomodoro.mini-visible) { display: 
 /* ── 4. Inside clock section: nuke everything except time and date ── */
 body.mini-mode .clock-section > *:not(.time):not(.date) { display: none !important; }
 
-/* ── 5. Resize grip: absolute, hover-only ── */
+/* ── 5. Resize grip: hidden in mini mode ── */
 body.mini-mode .resize-grip {
-  display: block;
-  opacity: 0;
-  pointer-events: none;
+  display: none !important;
 }
 
 /* ── 6. Hover reveals ── */
 body.mini-mode:hover #titlebar {
   opacity: 1;
   pointer-events: auto;
-  background: rgba(18, 18, 20, 0.78);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
 }
 
-body.mini-mode:hover .resize-grip   { opacity: 1; pointer-events: auto; }
-body.mini-mode:hover .window-controls,
-body.mini-mode:hover #btn-lang       { opacity: 1; pointer-events: auto; }
+body.mini-mode:hover .window-controls { opacity: 1; pointer-events: auto; }
 
-body.mini-mode .window-controls,
-body.mini-mode #btn-lang {
+body.mini-mode .window-controls {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
@@ -569,7 +642,7 @@ body.mini-mode:hover main {
 /* ── 7. Clock digit styling ── */
 body.mini-mode .clock-section { padding: 0; text-align: center; }
 body.mini-mode .time   { font-size: 36px; text-shadow: none; letter-spacing: 2px; }
-body.mini-mode .date   { font-size: 11px; text-shadow: none; color: var(--text-primary); }
+body.mini-mode .date   { font-size: 11px; text-shadow: none; color: var(--text-primary); letter-spacing: 1px; }
 
 /* ── 8. Pomodoro in mini mode (keep original ring size) ── */
 body.mini-mode #pomodoro.mini-visible {
@@ -590,7 +663,17 @@ body.mini-mode #pomodoro.mini-visible .pomo-ring-bg {
 /* Ring & time keep their default (non-mini) sizes — no overrides needed */
 
 body.mini-mode #pomodoro.mini-visible .pomo-label,
-body.mini-mode #pomodoro.mini-visible .pomo-controls,
 body.mini-mode #pomodoro.mini-visible .pomo-settings,
 body.mini-mode #pomodoro.mini-visible .pomo-counter,
 body.mini-mode #pomodoro.mini-visible .section-header { display: none !important; }
+
+/* Controls: hidden by default, shown on hover */
+body.mini-mode #pomodoro.mini-visible .pomo-controls {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+body.mini-mode:hover #pomodoro.mini-visible .pomo-controls {
+  opacity: 1;
+  pointer-events: auto;
+}

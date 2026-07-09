@@ -11,9 +11,26 @@
     <!-- Title bar (drag region for frameless window) -->
     <header id="titlebar" data-tauri-drag-region>
       <span class="app-name">Crit Tomato</span>
-        <button id="btn-lang" class="win-btn lang-btn" title="Switch Language" data-i18n="lang.label">Language</button>
       <div class="window-controls">
-        <button id="btn-pin" class="win-btn" title="Toggle Always on Top">📌</button>
+        <div class="settings-wrap">
+          <button id="btn-settings" class="win-btn" title="Settings">
+            <svg class="icon-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+          </button>
+          <div class="settings-dropdown">
+            <button id="btn-lang" class="settings-item" data-i18n="lang.label">Language</button>
+            <button id="btn-format" class="settings-item" data-i18n="format.24h">24小时</button>
+          </div>
+        </div>
+        <button id="btn-pin" class="win-btn" title="Toggle Always on Top">
+          <svg class="icon-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="7" r="2.5" fill="currentColor" stroke="none"/>
+            <line x1="12" y1="9.5" x2="12" y2="22"/>
+            <polyline points="5,14 12,9.5 19,14"/>
+          </svg>
+        </button>
         <button id="btn-minimize" class="win-btn" title="Minimize to Tray">─</button>
       </div>
     </header>
@@ -24,13 +41,6 @@
         <div class="time" id="local-time">00:00:00</div>
         <div class="date" id="local-date">Wednesday, January 1</div>
         <div class="tz-indicator" id="tz-indicator" data-i18n="tz.local">🏠 Local</div>
-        <div class="format-row">
-          <button id="btn-format" class="small-btn" data-i18n="format.24h">24h</button>
-        </div>
-        <div class="font-row">
-          <select id="font-select" class="font-select">
-          </select>
-        </div>
       </section>
 
       <!-- Timezones -->
@@ -58,20 +68,32 @@
           </svg>
           <div class="pomo-time" id="pomo-display">25:00</div>
         </div>
-        <div class="pomo-label" id="pomo-label" data-i18n="pomo.ready">🍅 Ready</div>
+        <div class="pomo-label">
+          <span id="pomo-label-text" data-i18n="pomo.ready">Ready</span>
+        </div>
         <div class="pomo-controls">
           <button id="btn-pomo-start" class="pomo-btn start" data-i18n="pomo.start">▶ Start</button>
           <button id="btn-pomo-reset" class="pomo-btn reset" data-i18n="pomo.reset">↺ Reset</button>
         </div>
         <div class="pomo-settings">
-          <label><span data-i18n="pomo.work_label">Work</span> <input type="number" id="work-minutes" value="25" min="1" max="120"> <span data-i18n="pomo.min">min</span></label>
+          <label><span data-i18n="pomo.work_label">Work</span> <input type="number" id="work-minutes" value="45" min="1" max="120"> <span data-i18n="pomo.min">min</span></label>
           <label><span data-i18n="pomo.break_label">Break</span> <input type="number" id="break-minutes" value="5" min="1" max="60"> <span data-i18n="pomo.min">min</span></label>
         </div>
         <div class="pomo-counter">
-          🍅 × <span id="tomato-count">0</span>
+          <img class="icon-tomato" src="images/tomato01.png" alt="" />
+          × <span id="tomato-count">0</span>
         </div>
       </section>
     </main>
+
+    <!-- Break / Focus reminder popup -->
+    <div id="break-popup" class="break-popup">
+      <div class="break-popup-content">
+        <p class="break-popup-text" id="break-popup-text">休息时间，起立！</p>
+        <button id="btn-break-go" class="pomo-btn start">去活动</button>
+      </div>
+    </div>
+
     <!-- Resize grip (visible in mini mode) -->
     <div id="resize-grip" class="resize-grip"></div>
   </div>

@@ -38,7 +38,6 @@ class App {
       this.clock.setTimezone({ id: e.detail.id, city: e.detail.city });
     });
 
-    this.setupFontSelector();
     this.setupWindowControls();
     this.setupLangToggle();
   }
@@ -77,10 +76,10 @@ class App {
 
     // Then shrink window (may fail but hiding already done)
     try {
-      const height = pomoActive ? 210 : 76;
+      const height = pomoActive ? 270 : 100;
       await win.setSize({ type: 'Logical', width: 220, height });
-      await win.setMinSize({ type: 'Logical', width: 140, height: 60 });
-      await win.setResizable(true);
+      await win.setMinSize({ type: 'Logical', width: 140, height: 80 });
+      await win.setResizable(false);
     } catch (e) {
       console.error('enterMiniMode window resize failed:', e);
     }
@@ -95,10 +94,10 @@ class App {
       const pomo = document.getElementById('pomodoro');
       if (e.detail.status !== 'idle') {
         pomo.classList.add('mini-visible');
-        this._adjustMiniSize(win, 210);
+        this._adjustMiniSize(win, 270);
       } else {
         pomo.classList.remove('mini-visible');
-        this._adjustMiniSize(win, 76);
+        this._adjustMiniSize(win, 100);
       }
     };
     document.addEventListener('pomodoro-state', this._pomoHandler);
@@ -140,7 +139,7 @@ class App {
     const titlebar = document.getElementById('titlebar');
     if (titlebar) {
       for (const child of titlebar.children) {
-        if (!child.classList.contains('window-controls') && child.id !== 'btn-lang') {
+        if (!child.classList.contains('window-controls') && !child.classList.contains('app-name')) {
           child._miniPrevDisplay = child.style.display;
           child.style.display = 'none';
           this._miniHidden.push(child);
@@ -169,7 +168,7 @@ class App {
 
     // Then resize window back (may fail but DOM is already restored)
     try {
-      await win.setSize({ type: 'Logical', width: 320, height: 520 });
+      await win.setSize({ type: 'Logical', width: 320, height: 590 });
       await win.setMinSize({ type: 'Logical', width: 0, height: 0 });
       await win.setResizable(true);
     } catch (e) {
@@ -184,83 +183,46 @@ class App {
     } catch { /* ignore */ }
   }
 
-  /* ---- Font Selector ---- */
-
-  // Curated list of well-designed monospace fonts commonly available
-  static FONT_LIST = [
-    'Consolas',
-    'Cascadia Code',
-    'Cascadia Mono',
-    'JetBrains Mono',
-    'Fira Code',
-    'Fira Mono',
-    'Source Code Pro',
-    'Courier New',
-    'Menlo',
-    'Monaco',
-    'SF Mono',
-    'IBM Plex Mono',
-    'Roboto Mono',
-    'Ubuntu Mono',
-    'DejaVu Sans Mono',
-    'Liberation Mono',
-    'Lucida Console',
-  ];
-
-  setupFontSelector() {
-    const sel = document.getElementById('font-select');
-
-    // Default option
-    const defaultOpt = document.createElement('option');
-    defaultOpt.value = '';
-    defaultOpt.textContent = 'Default';
-    sel.appendChild(defaultOpt);
-
-    // Fill options
-    for (const name of App.FONT_LIST) {
-      const opt = document.createElement('option');
-      opt.value = name;
-      opt.textContent = name;
-      sel.appendChild(opt);
-    }
-
-    // Load saved preference
-    const saved = localStorage.getItem('crit-tomato-font');
-    if (saved) {
-      sel.value = saved;
-      this.applyFont(saved);
-    }
-
-    sel.addEventListener('change', () => {
-      const font = sel.value;
-      this.applyFont(font);
-      try { localStorage.setItem('crit-tomato-font', font); } catch { /* ignore */ }
-    });
-  }
-
-  applyFont(font) {
-    if (font) {
-      document.documentElement.style.setProperty('--font-mono', `"${font}", monospace`);
-    } else {
-      // Reset to CSS default
-      document.documentElement.style.removeProperty('--font-mono');
-    }
-  }
-
   /* ---- Window Controls ---- */
 
   setupWindowControls() {
     const btnMin = document.getElementById('btn-minimize');
     const btnPin = document.getElementById('btn-pin');
+    const btnSettings = document.getElementById('btn-settings');
+    const settingsDropdown = document.querySelector('.settings-dropdown');
 
     // Toggle mini-mode
     btnMin.addEventListener('click', () => this.toggleMiniMode());
 
+    // Toggle settings dropdown
+    btnSettings.addEventListener('click', (e) => {
+      e.stopPropagation();
+      settingsDropdown.classList.toggle('show');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.settings-wrap')) {
+        settingsDropdown.classList.remove('show');
+      }
+    });
+
     // Toggle always-on-top (pin)
     btnPin.addEventListener('click', async () => {
       this.isPinned = !this.isPinned;
-      btnPin.textContent = this.isPinned ? '📌' : '📍';
       btnPin.style.opacity = this.isPinned ? '1' : '0.5';
+      // Swap pin SVG: pinned vs unpinned
+      btnPin.innerHTML = this.isPinned
+        ? `<svg class="icon-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="7" r="2.5" fill="currentColor" stroke="none"/>
+            <line x1="12" y1="9.5" x2="12" y2="22"/>
+            <polyline points="5,14 12,9.5 19,14"/>
+          </svg>`
+        : `<svg class="icon-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="7" r="2.5" fill="currentColor" stroke="none"/>
+            <line x1="12" y1="9.5" x2="12" y2="22"/>
+            <line x1="2" y1="2" x2="22" y2="22"/>
+          </svg>`;
       try {
         const { getCurrentWindow } = await import('@tauri-apps/api/window');
         await getCurrentWindow().setAlwaysOnTop(this.isPinned);

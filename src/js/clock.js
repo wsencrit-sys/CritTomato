@@ -2,7 +2,7 @@
  * Local clock — updates every second, supports 12/24h toggle.
  * Supports remote timezone rendering via setTimezone().
  */
-import { t } from './i18n.js';
+import { t, getLang } from './i18n.js';
 
 export class Clock {
   constructor() {
@@ -75,8 +75,12 @@ export class Clock {
   }
 
   formatDate(date) {
-    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return date.toLocaleDateString('en-US', opts);
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    const locale = getLang() === 'zh-CN' ? 'zh-CN' : 'en-US';
+    const weekday = date.toLocaleDateString(locale, { weekday: 'long' });
+    return `${y}/${m}/${d} ${weekday}`;
   }
 
   /* ---- Remote timezone formatters ---- */
@@ -95,11 +99,13 @@ export class Clock {
 
   formatTzDate(date, tzId) {
     try {
-      const opts = {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-        timeZone: tzId
-      };
-      return new Intl.DateTimeFormat('en-US', opts).format(date);
+      // Extract Y/M/D in target timezone
+      const y = parseInt(new Intl.DateTimeFormat('en-US', { year: 'numeric', timeZone: tzId }).format(date));
+      const m = parseInt(new Intl.DateTimeFormat('en-US', { month: '2-digit', timeZone: tzId }).format(date));
+      const d = parseInt(new Intl.DateTimeFormat('en-US', { day: '2-digit', timeZone: tzId }).format(date));
+      const locale = getLang() === 'zh-CN' ? 'zh-CN' : 'en-US';
+      const weekday = date.toLocaleDateString(locale, { weekday: 'long', timeZone: tzId });
+      return `${y}/${String(m).padStart(2, '0')}/${String(d).padStart(2, '0')} ${weekday}`;
     } catch {
       return '---';
     }

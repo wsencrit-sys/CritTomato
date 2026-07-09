@@ -14,7 +14,7 @@ export class Pomodoro {
   constructor() {
     // State
     this.status = 'idle';  // idle | running | paused | break
-    this.workMinutes = 25;
+    this.workMinutes = 45;
     this.breakMinutes = 5;
     this.remainingSeconds = 25 * 60;
     this.totalSeconds = 25 * 60;
@@ -24,7 +24,7 @@ export class Pomodoro {
     // DOM refs
     this.elDisplay = document.getElementById('pomo-display');
     this.elCircle = document.getElementById('pomo-circle');
-    this.elLabel = document.getElementById('pomo-label');
+    this.elLabel = document.getElementById('pomo-label-text');
     this.elStartBtn = document.getElementById('btn-pomo-start');
     this.elResetBtn = document.getElementById('btn-pomo-reset');
     this.elWorkInput = document.getElementById('work-minutes');
@@ -33,6 +33,10 @@ export class Pomodoro {
 
     // Audio context (lazy)
     this.audioCtx = null;
+
+    // Break popup refs
+    this.elBreakPopup = document.getElementById('break-popup');
+    this.elBreakGoBtn = document.getElementById('btn-break-go');
   }
 
   start() {
@@ -43,6 +47,7 @@ export class Pomodoro {
     this.elResetBtn.addEventListener('click', () => this.reset());
     this.elWorkInput.addEventListener('change', () => this.onSettingsChange());
     this.elBreakInput.addEventListener('change', () => this.onSettingsChange());
+    this.elBreakGoBtn.addEventListener('click', () => this.handlePopupAction());
   }
 
   /* ---- Helpers ---- */
@@ -62,13 +67,11 @@ export class Pomodoro {
         this.startTimer();
         break;
       case 'running':
+      case 'break':
         this.pause();
         break;
       case 'paused':
         this.resume();
-        break;
-      case 'break':
-        // Don't toggle break — must reset first
         break;
     }
   }
@@ -83,6 +86,7 @@ export class Pomodoro {
     this.elLabel.classList.add('running');
     if (this.status === 'break') {
       this.elLabel.classList.add('break-label');
+      this.elCircle.classList.remove('paused');
       this.elCircle.classList.add('break');
     }
 
@@ -94,10 +98,12 @@ export class Pomodoro {
   }
 
   pause() {
+    this._pausedFromBreak = (this.status === 'break');
     this.status = 'paused';
     clearInterval(this.timer);
     this.timer = null;
 
+    this.elCircle.classList.add('paused');
     this.elStartBtn.textContent = t('pomo.resume');
     this.elStartBtn.classList.remove('pause');
     this.elLabel.textContent = t('pomo.paused');
@@ -106,14 +112,17 @@ export class Pomodoro {
   }
 
   resume() {
-    this.status = 'running';
+    this.status = this._pausedFromBreak ? 'break' : 'running';
     this.timer = setInterval(() => this.tick(), 1000);
 
+    this.elCircle.classList.remove('paused');
+    if (!this._pausedFromBreak) this.elCircle.classList.remove('break');
     this.elStartBtn.textContent = t('pomo.pause');
     this.elStartBtn.classList.add('pause');
-    const isBreak = this.elLabel.classList.contains('break-label');
+    const isBreak = this._pausedFromBreak || this.elLabel.classList.contains('break-label');
     this.elLabel.textContent = isBreak ? t('pomo.break') : t('pomo.focus');
     this.elLabel.classList.add('running');
+    if (isBreak) this.elLabel.classList.add('break-label');
     this._notifyState();
   }
 
@@ -121,6 +130,12 @@ export class Pomodoro {
     clearInterval(this.timer);
     this.timer = null;
     this.status = 'idle';
+
+    // Hide popup & stop alarm
+    this.stopAlarm();
+    if (this.elBreakPopup) {
+      this.elBreakPopup.classList.remove('show');
+    }
 
     this.workMinutes = Math.max(1, Math.min(120, parseInt(this.elWorkInput.value, 10) || 25));
     this.breakMinutes = Math.max(1, Math.min(60, parseInt(this.elBreakInput.value, 10) || 5));
@@ -131,7 +146,7 @@ export class Pomodoro {
     this.elStartBtn.classList.remove('pause');
     this.elLabel.textContent = t('pomo.ready');
     this.elLabel.classList.remove('running', 'break-label');
-    this.elCircle.classList.remove('break');
+    this.elCircle.classList.remove('break', 'paused');
     this.elWorkInput.disabled = false;
     this.elBreakInput.disabled = false;
 
@@ -164,7 +179,7 @@ export class Pomodoro {
     this.timer = null;
 
     if (this.status === 'break') {
-      // Break finished → idle
+      // Break finished → show focus popup + alarm
       this.status = 'idle';
       this.remainingSeconds = this.workMinutes * 60;
       this.totalSeconds = this.remainingSeconds;
@@ -173,15 +188,16 @@ export class Pomodoro {
       this.elStartBtn.classList.remove('pause');
       this.elLabel.textContent = t('pomo.ready');
       this.elLabel.classList.remove('running', 'break-label');
-      this.elCircle.classList.remove('break');
+      this.elCircle.classList.remove('break', 'paused');
       this.elWorkInput.disabled = false;
       this.elBreakInput.disabled = false;
 
-      this.beep(800, 0.15);
       this.notify(t('pomo.notify.break_title'), t('pomo.notify.break_body'));
+      this.showPopup('focus');
+      this.startAlarm();
       this._notifyState();
     } else {
-      // Work session finished
+      // Work session finished → show break popup + alarm
       this.tomatoCount++;
       this.elCount.textContent = this.tomatoCount;
 
@@ -189,17 +205,13 @@ export class Pomodoro {
       this.remainingSeconds = this.breakMinutes * 60;
       this.totalSeconds = this.remainingSeconds;
 
-      this.elCircle.classList.add('break');
-      this.elLabel.textContent = t('pomo.break');
-      this.elLabel.classList.add('running', 'break-label');
-      this.elStartBtn.textContent = t('pomo.pause');
-
-      this.beep(600, 0.1);
-      setTimeout(() => this.beep(900, 0.2), 200);
       this.notify(
         t('pomo.notify.done_title'),
         t('pomo.notify.done_body', { count: this.tomatoCount, plural: this.tomatoCount > 1 ? 'es' : '' })
       );
+
+      this.showPopup('break');
+      this.startAlarm();
       this._notifyState();
     }
 
@@ -262,6 +274,90 @@ export class Pomodoro {
     }
   }
 
+  /**
+   * Show popup. type = 'break' → "休息时间，起立！" / "去活动"
+   *             'focus' → "专注时间！" / "去工作"
+   */
+  showPopup(type) {
+    this._popupType = type;
+    const textEl = document.getElementById('break-popup-text');
+    if (type === 'focus') {
+      if (textEl) textEl.textContent = t('pomo.focus_popup');
+      this.elBreakGoBtn.textContent = t('pomo.focus_go');
+    } else {
+      if (textEl) textEl.textContent = t('pomo.break_popup');
+      this.elBreakGoBtn.textContent = t('pomo.break_go');
+    }
+    if (this.elBreakPopup) {
+      this.elBreakPopup.classList.add('show');
+    }
+  }
+
+  /** Handle popup button click — stop alarm and proceed. */
+  handlePopupAction() {
+    this.stopAlarm();
+    if (this.elBreakPopup) {
+      this.elBreakPopup.classList.remove('show');
+    }
+
+    if (this._popupType === 'focus') {
+      // Break finished → just reset to idle (already done in complete())
+      this.updateDisplay();
+      this.updateRing();
+    } else {
+      // Focus finished → start the break countdown
+      this.elCircle.classList.remove('paused');
+      this.elCircle.classList.add('break');
+      this.elLabel.textContent = t('pomo.break');
+      this.elLabel.classList.add('running', 'break-label');
+      this.elStartBtn.textContent = t('pomo.pause');
+      this.elStartBtn.classList.add('pause');
+
+      this.timer = setInterval(() => this.tick(), 1000);
+      this.updateDisplay();
+      this.updateRing();
+    }
+  }
+
+  /**
+   * Start looping alarm. Type is read from this._popupType:
+   *   'break' → calming, gentle descending tones
+   *   'focus' → energetic, rhythmic ascending arpeggio
+   */
+  startAlarm() {
+    this.stopAlarm();
+
+    if (this._popupType === 'focus') {
+      // ── Energetic ascending arpeggio: A4 → C#5 → E5 → A5 ──
+      const notes = [440, 554, 659, 880];
+      let step = 0;
+      const energeticLoop = () => {
+        this.beep(notes[step], 0.18);
+        step = (step + 1) % notes.length;
+        this._alarmTimer = setTimeout(energeticLoop, 180);
+      };
+      energeticLoop();
+    } else {
+      // ── Calming descending pentatonic: C5 → A4 → F4 → D4 ──
+      const notes = [523, 440, 349, 294];
+      let step = 0;
+      const calmLoop = () => {
+        this.beep(notes[step], 0.35);
+        step = (step + 1) % notes.length;
+        this._alarmTimer = setTimeout(calmLoop, 600);
+      };
+      calmLoop();
+    }
+  }
+
+  /** Stop the looping alarm. */
+  stopAlarm() {
+    if (this._alarmTimer) {
+      clearTimeout(this._alarmTimer);
+      this._alarmTimer = null;
+    }
+  }
+
   /** Update all dynamic i18n text without resetting state. */
   refresh() {
     switch (this.status) {
@@ -284,7 +380,7 @@ export class Pomodoro {
         break;
     }
     // Also update the settings labels via the DOM binding
-    const el = document.getElementById('pomo-label');
+    const el = document.getElementById('pomo-label-text');
     if (el) {
       document.querySelectorAll('[data-i18n]').forEach(el2 => {
         const key = el2.getAttribute('data-i18n');
