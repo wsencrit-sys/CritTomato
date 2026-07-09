@@ -3,8 +3,8 @@
  * Initializes i18n, clock (with timezone switching), pomodoro timer, and window controls.
  *
  * Normal mode: full window (320×520) with clock, timezone selector, pomodoro.
- * Mini mode:  compact overlay (220×~80–140) — invisible until hover,
- *              shows clock (+ pomodoro if running).
+ * Mini mode:  compact overlay (220×~80–140) — only time+date visible,
+ *              controls fade in on hover.
  */
 import { bindI18n, getLang, setLang } from './i18n.js';
 import { Clock } from './clock.js';
@@ -19,6 +19,8 @@ class App {
     this.timezones = new TimezoneSelector();
     this.pomodoro = new Pomodoro();
     this._pomoHandler = null;
+    // Elements force-hidden in mini mode (restored on exit)
+    this._miniHidden = [];
   }
 
   async init() {
@@ -51,11 +53,12 @@ class App {
       const win = getCurrentWindow();
 
       if (this.isMiniMode) {
-        this.enterMiniMode(win);
+        await this.enterMiniMode(win);
       } else {
-        this.exitMiniMode(win);
+        await this.exitMiniMode(win);
       }
-    } catch {
+    } catch (e) {
+      console.error('toggleMiniMode Tauri API error:', e);
       // Fallback for browser dev — just toggle CSS
       document.body.classList.toggle('mini-mode', this.isMiniMode);
     }
@@ -64,26 +67,35 @@ class App {
   async enterMiniMode(win) {
     const pomoActive = this.pomodoro.status !== 'idle';
 
-    // Shrink window, keep resizable for manual resize
-    const height = pomoActive ? 140 : 76;
-    await win.setSize({ type: 'Logical', width: 220, height });
-    await win.setMinSize({ type: 'Logical', width: 140, height: 60 });
-    await win.setResizable(true);
-
+    // Apply CSS class IMMEDIATELY (before any await)
     document.body.classList.add('mini-mode');
     document.getElementById('btn-minimize').textContent = '☰';
 
-    // Show pomodoro in mini mode if running (will only be visible on hover)
+    // Hide all non-clock elements immediately (before window resize)
+    // Pass pomoActive so pomodoro section is kept visible when timer is running
+    this._hideNonClockElements(pomoActive);
+
+    // Then shrink window (may fail but hiding already done)
+    try {
+      const height = pomoActive ? 210 : 76;
+      await win.setSize({ type: 'Logical', width: 220, height });
+      await win.setMinSize({ type: 'Logical', width: 140, height: 60 });
+      await win.setResizable(true);
+    } catch (e) {
+      console.error('enterMiniMode window resize failed:', e);
+    }
+
+    // Show pomodoro in mini mode if running
     if (pomoActive) {
       document.getElementById('pomodoro').classList.add('mini-visible');
     }
 
-    // Listen for pomodoro state changes to toggle mini-visible & resize
+    // Listen for pomodoro state changes
     this._pomoHandler = (e) => {
       const pomo = document.getElementById('pomodoro');
       if (e.detail.status !== 'idle') {
         pomo.classList.add('mini-visible');
-        this._adjustMiniSize(win, 140);
+        this._adjustMiniSize(win, 210);
       } else {
         pomo.classList.remove('mini-visible');
         this._adjustMiniSize(win, 76);
@@ -92,18 +104,76 @@ class App {
     document.addEventListener('pomodoro-state', this._pomoHandler);
   }
 
-  async exitMiniMode(win) {
-    await win.setSize({ type: 'Logical', width: 320, height: 520 });
-    await win.setMinSize({ type: 'Logical', width: 0, height: 0 });
-    await win.setResizable(true);
+  /**
+   * Hide all non-clock/time/date elements using inline styles.
+   * Called from enterMiniMode BEFORE any async work.
+   */
+  _hideNonClockElements(pomoActive) {
+    const clock = document.getElementById('main-clock');
+    const keepVisible = ['.time', '.date'];
+    if (clock) {
+      const allDescendants = clock.querySelectorAll('*');
+      for (const el of allDescendants) {
+        const matches = keepVisible.some(sel => el.matches(sel));
+        if (!matches) {
+          el._miniPrevDisplay = el.style.display;
+          el.style.display = 'none';
+          this._miniHidden.push(el);
+        }
+      }
+      // Hide sibling sections of #main-clock inside main
+      const mainEl = clock.parentElement;
+      if (mainEl) {
+        for (const child of mainEl.children) {
+          // Keep pomodoro section visible when timer is running
+          if (child !== clock) {
+            if (pomoActive && child.id === 'pomodoro') continue;
+            child._miniPrevDisplay = child.style.display;
+            child.style.display = 'none';
+            this._miniHidden.push(child);
+          }
+        }
+      }
+    }
 
+    // Force hide titlebar children except controls
+    const titlebar = document.getElementById('titlebar');
+    if (titlebar) {
+      for (const child of titlebar.children) {
+        if (!child.classList.contains('window-controls') && child.id !== 'btn-lang') {
+          child._miniPrevDisplay = child.style.display;
+          child.style.display = 'none';
+          this._miniHidden.push(child);
+        }
+      }
+    }
+  }
+
+  async exitMiniMode(win) {
+    // ── Restore DOM IMMEDIATELY (before any await) ──
     document.body.classList.remove('mini-mode');
     document.getElementById('btn-minimize').textContent = '─';
     document.getElementById('pomodoro').classList.remove('mini-visible');
 
+    // Restore all force-hidden elements
+    for (const el of this._miniHidden) {
+      el.style.display = el._miniPrevDisplay || '';
+    }
+    this._miniHidden = [];
+
+    // Remove pomodoro state listener
     if (this._pomoHandler) {
       document.removeEventListener('pomodoro-state', this._pomoHandler);
       this._pomoHandler = null;
+    }
+
+    // Then resize window back (may fail but DOM is already restored)
+    try {
+      await win.setSize({ type: 'Logical', width: 320, height: 520 });
+      await win.setMinSize({ type: 'Logical', width: 0, height: 0 });
+      await win.setResizable(true);
+    } catch (e) {
+      console.error('exitMiniMode window resize failed:', e);
     }
   }
 

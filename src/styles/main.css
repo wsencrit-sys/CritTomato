@@ -490,13 +490,19 @@ body.mini-mode #app {
   border-radius: 0;
 }
 
-/* Titlebar: absolute overlay — zero layout footprint, visible only on hover */
+/*
+ * WHITELIST STRATEGY:
+ * Only .time and .date visible. Everything else gone until hover.
+ */
+
+/* ── 1. Titlebar: absolute overlay, zero layout, hover-only ── */
 body.mini-mode #titlebar {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   z-index: 10;
+  display: flex;
   background: transparent;
   border-bottom: none;
   padding: 2px 4px;
@@ -505,119 +511,86 @@ body.mini-mode #titlebar {
   transition: opacity 0.25s ease;
 }
 
+body.mini-mode .app-name { display: none; }
+
+/* ── 2. main: fill window, center clock only ── */
+body.mini-mode main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* ── 3. Inside main: nuke everything except clock & running pomodoro ── */
+body.mini-mode main > *:not(#main-clock):not(#pomodoro.mini-visible) { display: none !important; }
+
+/* ── 4. Inside clock section: nuke everything except time and date ── */
+body.mini-mode .clock-section > *:not(.time):not(.date) { display: none !important; }
+
+/* ── 5. Resize grip: absolute, hover-only ── */
+body.mini-mode .resize-grip {
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── 6. Hover reveals ── */
 body.mini-mode:hover #titlebar {
   opacity: 1;
   pointer-events: auto;
+  background: rgba(18, 18, 20, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
 }
 
-body.mini-mode .app-name {
-  display: none;
-}
+body.mini-mode:hover .resize-grip   { opacity: 1; pointer-events: auto; }
+body.mini-mode:hover .window-controls,
+body.mini-mode:hover #btn-lang       { opacity: 1; pointer-events: auto; }
 
-/* Window controls & lang button: hidden, revealed on hover */
 body.mini-mode .window-controls,
 body.mini-mode #btn-lang {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 
-body.mini-mode:hover .window-controls,
-body.mini-mode:hover #btn-lang {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Hide non-essential sections permanently */
-body.mini-mode #timezones,
-body.mini-mode .pomo-section {
-  display: none;
-}
-
-body.mini-mode .format-row,
-body.mini-mode .tz-indicator,
-body.mini-mode .font-row {
-  display: none;
-}
-
-/* Mini clock — ONLY digits visible, centered, zero clutter */
+/* Hover: push clock down so it doesn't overlap with revealed titlebar */
 body.mini-mode main {
-  padding: 2px;
-  gap: 0;
-  justify-content: center;
+  transition: padding-top 0.25s ease;
+}
+body.mini-mode:hover main {
+  padding-top: 30px;
+}
+
+/* ── 7. Clock digit styling ── */
+body.mini-mode .clock-section { padding: 0; text-align: center; }
+body.mini-mode .time   { font-size: 36px; text-shadow: none; letter-spacing: 2px; }
+body.mini-mode .date   { font-size: 11px; text-shadow: none; color: var(--text-primary); }
+
+/* ── 8. Pomodoro in mini mode (keep original ring size) ── */
+body.mini-mode #pomodoro.mini-visible {
+  display: flex !important;
+  flex-direction: column;
   align-items: center;
-  overflow: hidden;
-}
-
-body.mini-mode .clock-section {
-  padding: 0;
-}
-
-body.mini-mode .time {
-  font-size: 36px;
-  text-shadow: none;
-  letter-spacing: 2px;
-}
-
-body.mini-mode .date {
-  font-size: 11px;
-  text-shadow: none;
-  color: var(--text-primary);
-}
-
-/* Pomodoro in mini-mode: hidden by default, shown on hover when running/paused */
-body.mini-mode .pomo-section.mini-visible {
-  display: block;
   background: transparent;
-  padding: 4px 8px;
-  border-radius: 0;
   border: none;
-  margin-top: 2px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
+  padding: 6px 0;
+  gap: 0;
 }
 
-body.mini-mode:hover .pomo-section.mini-visible {
-  opacity: 1;
-  pointer-events: auto;
+/* Darker ring track for mini mode visibility */
+body.mini-mode #pomodoro.mini-visible .pomo-ring-bg {
+  stroke: rgba(255, 255, 255, 0.2);
 }
 
-body.mini-mode .pomo-section.mini-visible .section-header {
-  display: none;
-}
+/* Ring & time keep their default (non-mini) sizes — no overrides needed */
 
-body.mini-mode .pomo-section.mini-visible .pomo-ring-container {
-  width: 48px;
-  height: 48px;
-  margin: 0 auto 2px;
-}
-
-body.mini-mode .pomo-section.mini-visible .pomo-time {
-  font-size: 14px;
-  text-shadow: none;
-}
-
-body.mini-mode .pomo-section.mini-visible .pomo-label {
-  font-size: 11px;
-  margin-top: 1px;
-  text-shadow: none;
-}
-
-body.mini-mode .pomo-section.mini-visible .pomo-settings {
-  display: none;
-}
-
-body.mini-mode .pomo-section.mini-visible .pomo-counter {
-  display: none;
-}
-
-body.mini-mode .pomo-section.mini-visible .pomo-controls {
-  margin-top: 4px;
-  gap: 6px;
-}
-
-body.mini-mode .pomo-section.mini-visible .pomo-btn {
-  padding: 3px 10px;
-  font-size: 11px;
-}
+body.mini-mode #pomodoro.mini-visible .pomo-label,
+body.mini-mode #pomodoro.mini-visible .pomo-controls,
+body.mini-mode #pomodoro.mini-visible .pomo-settings,
+body.mini-mode #pomodoro.mini-visible .pomo-counter,
+body.mini-mode #pomodoro.mini-visible .section-header { display: none !important; }
