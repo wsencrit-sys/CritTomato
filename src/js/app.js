@@ -6,10 +6,11 @@
  * Mini mode:  compact overlay (220×~80–140) — only time+date visible,
  *              controls fade in on hover.
  */
-import { bindI18n, getLang, setLang } from './i18n.js';
+import { bindI18n, getLang, setLang, t } from './i18n.js';
 import { Clock } from './clock.js';
 import { TimezoneSelector } from './timezone.js';
 import { Pomodoro } from './pomodoro.js';
+import { isEnabled, enable, disable } from '@tauri-apps/plugin-autostart';
 
 class App {
   constructor() {
@@ -39,7 +40,7 @@ class App {
     });
 
     this.setupWindowControls();
-    this.setupLangToggle();
+    this.setupSettings();
   }
 
   /* ---- Mini-mode ---- */
@@ -189,22 +190,15 @@ class App {
     const btnMin = document.getElementById('btn-minimize');
     const btnPin = document.getElementById('btn-pin');
     const btnSettings = document.getElementById('btn-settings');
-    const settingsDropdown = document.querySelector('.settings-dropdown');
 
     // Toggle mini-mode
     btnMin.addEventListener('click', () => this.toggleMiniMode());
 
-    // Toggle settings dropdown
+    // Toggle settings modal
+    const settingsModal = document.getElementById('settings-modal');
     btnSettings.addEventListener('click', (e) => {
       e.stopPropagation();
-      settingsDropdown.classList.toggle('show');
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.settings-wrap')) {
-        settingsDropdown.classList.remove('show');
-      }
+      settingsModal.classList.add('show');
     });
 
     // Toggle always-on-top (pin)
@@ -221,15 +215,96 @@ class App {
     });
   }
 
-  setupLangToggle() {
+  setupSettings() {
+    const modal = document.getElementById('settings-modal');
+    const btnClose = document.getElementById('btn-settings-close');
     const btnLang = document.getElementById('btn-lang');
+    const btnFormat = document.getElementById('btn-format');
+    const btnAutostart = document.getElementById('btn-autostart');
+    const opacitySlider = document.getElementById('opacity-slider');
+    const opacityValue = document.getElementById('opacity-value');
+    const focusInput = document.getElementById('focus-popup-text');
+    const breakInput = document.getElementById('break-popup-text-input');
+
+    // ── Modal open/close ──
+    btnClose.addEventListener('click', () => modal.classList.remove('show'));
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('show');
+    });
+
+    // ── Language toggle ──
+    const updateLangBtn = () => {
+      btnLang.textContent = getLang() === 'zh-CN' ? '中文' : 'English';
+    };
+    updateLangBtn();
     btnLang.addEventListener('click', () => {
       const next = getLang() === 'zh-CN' ? 'en' : 'zh-CN';
       setLang(next);
       bindI18n();
+      updateLangBtn();
       this.clock.refresh();
       this.timezones.refresh();
       this.pomodoro.refresh();
+      // Refresh settings modal i18n bindings
+      bindI18n(modal);
+    });
+
+    // ── 24h format toggle (syncs with clock.js) ──
+    // Clock.js already handles the click on btn-format, so the toggle works.
+    // We just ensure the button text stays in sync via clock.refresh().
+
+    // ── Auto-start toggle ──
+    const updateAutostartBtn = (enabled) => {
+      btnAutostart.textContent = enabled ? t('settings.on') : t('settings.off');
+      btnAutostart.classList.toggle('on', enabled);
+    };
+    // Init — check current autostart state
+    (async () => {
+      try {
+        const enabled = await isEnabled();
+        updateAutostartBtn(enabled);
+      } catch (e) {
+        console.warn('Autostart init failed:', e);
+      }
+    })();
+    btnAutostart.addEventListener('click', async () => {
+      try {
+        const enabled = await isEnabled();
+        if (enabled) {
+          await disable();
+          updateAutostartBtn(false);
+        } else {
+          await enable();
+          updateAutostartBtn(true);
+        }
+      } catch (e) {
+        console.error('Autostart toggle failed:', e);
+      }
+    });
+
+    // ── Opacity slider ──
+    const applyOpacity = (v) => {
+      const pct = parseInt(v, 10);
+      document.documentElement.style.setProperty('--bg-primary', `rgba(18, 18, 20, ${pct / 100})`);
+      document.documentElement.style.setProperty('--bg-surface', `rgba(28, 28, 32, ${(pct * 0.76) / 100})`);
+      opacityValue.textContent = pct + '%';
+      localStorage.setItem('crit-tomato-opacity', String(pct));
+    };
+    const savedOpacity = localStorage.getItem('crit-tomato-opacity') || '72';
+    opacitySlider.value = savedOpacity;
+    applyOpacity(savedOpacity);
+    opacitySlider.addEventListener('input', () => applyOpacity(opacitySlider.value));
+
+    // ── Custom popup text ──
+    const savedFocus = localStorage.getItem('crit-tomato-focus-text') || '';
+    const savedBreak = localStorage.getItem('crit-tomato-break-text') || '';
+    focusInput.value = savedFocus;
+    breakInput.value = savedBreak;
+    focusInput.addEventListener('input', () => {
+      localStorage.setItem('crit-tomato-focus-text', focusInput.value.trim());
+    });
+    breakInput.addEventListener('input', () => {
+      localStorage.setItem('crit-tomato-break-text', breakInput.value.trim());
     });
   }
 }

@@ -41,6 +41,16 @@ const translations = {
     'pomo.break_go': 'Get Moving',
     'pomo.focus_popup': 'Focus time!',
     'pomo.focus_go': 'Get to Work',
+
+    // Settings
+    'settings.title': 'Settings',
+    'settings.format': 'Time Format',
+    'settings.autostart': 'Launch on boot',
+    'settings.opacity': 'Opacity',
+    'settings.focus_text': 'Focus time reminder',
+    'settings.break_text': 'Break time reminder',
+    'settings.on': 'On',
+    'settings.off': 'Off',
   },
 
   'zh-CN': {
@@ -74,8 +84,18 @@ const translations = {
     'pomo.notify.done_body': '你已完成 {count} 个番茄{plural}。休息一下吧！',
     'pomo.break_popup': '休息时间，起立！',
     'pomo.break_go': '去活动',
-    'pomo.focus_popup': '专注时间！',
+    'pomo.focus_popup': '专注时间，搬砖！',
     'pomo.focus_go': '去工作',
+
+    // Settings
+    'settings.title': '设置',
+    'settings.format': '时间格式',
+    'settings.autostart': '开机启动',
+    'settings.opacity': '面板透明度',
+    'settings.focus_text': '专注时间提示',
+    'settings.break_text': '休息时间提示',
+    'settings.on': '开',
+    'settings.off': '关',
   },
 };
 

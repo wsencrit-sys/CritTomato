@@ -25,6 +25,7 @@ fn is_chinese_locale() -> bool {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_autostart::init(Default::default(), None))
         .setup(|app| {
             // Build tray menu — detect system language for labels
             let (show_label, quit_label) = if is_chinese_locale() {

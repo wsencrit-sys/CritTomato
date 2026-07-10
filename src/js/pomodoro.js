@@ -282,11 +282,13 @@ export class Pomodoro {
     this._popupType = type;
     const textEl = document.getElementById('break-popup-text');
     if (type === 'focus') {
-      if (textEl) textEl.textContent = t('pomo.focus_popup');
+      const custom = localStorage.getItem('crit-tomato-focus-text');
+      if (textEl) textEl.textContent = custom || t('pomo.focus_popup');
       this.elBreakGoBtn.textContent = t('pomo.focus_go');
       this.elBreakGoBtn.classList.remove('break-go');
     } else {
-      if (textEl) textEl.textContent = t('pomo.break_popup');
+      const custom = localStorage.getItem('crit-tomato-break-text');
+      if (textEl) textEl.textContent = custom || t('pomo.break_popup');
       this.elBreakGoBtn.textContent = t('pomo.break_go');
       this.elBreakGoBtn.classList.add('break-go');
     }
