@@ -569,23 +569,20 @@ body.mini-mode:hover .resize-grip {
 .settings-modal {
   display: none;
   position: absolute;
-  inset: 0;
+  top: -6px;
+  right: 0;
   z-index: 150;
-  background: transparent;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius);
 }
 
 .settings-modal.show {
-  display: flex;
+  display: block;
 }
 
 .settings-modal-content {
-  width: 260px;
-  max-height: 85%;
+  width: 244px;
+  max-height: 420px;
   overflow-y: auto;
-  background: rgba(28, 28, 32, 0.95);
+  background: rgba(28, 28, 32, 0.70);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);

@@ -16,6 +16,49 @@
           <button id="btn-settings" class="win-btn" title="Settings">
             <img class="icon-gear" src="images/ChiLun_logo.png" alt="" />
           </button>
+          <!-- Settings Modal -->
+          <div id="settings-modal" class="settings-modal">
+            <div class="settings-modal-content">
+              <div class="settings-modal-header">
+                <h3 data-i18n="settings.title">Settings</h3>
+                <button id="btn-settings-close" class="settings-close-btn">&times;</button>
+              </div>
+              <div class="settings-modal-body">
+                <div class="settings-row">
+                  <span data-i18n="lang.label">Language</span>
+                  <button id="btn-lang" class="toggle-btn" data-i18n="lang.label">中文</button>
+                </div>
+                <div class="settings-row">
+                  <span data-i18n="settings.format">Time Format</span>
+                  <button id="btn-format" class="toggle-btn">24小时</button>
+                </div>
+                <div class="settings-separator"></div>
+                <div class="settings-row">
+                  <span data-i18n="settings.autostart">Launch on boot</span>
+                  <button id="btn-autostart" class="toggle-btn">关</button>
+                </div>
+                <div class="settings-separator"></div>
+                <div class="settings-row">
+                  <span data-i18n="settings.opacity">Opacity</span>
+                  <div class="slider-wrap">
+                    <input type="range" id="opacity-slider" min="0" max="100" value="72">
+                    <span id="opacity-value">72%</span>
+                  </div>
+                </div>
+                <div class="settings-separator"></div>
+                <div class="settings-row col">
+                  <span data-i18n="settings.break_text">Break popup text</span>
+                  <input type="text" id="break-popup-text-input" class="settings-input"
+                         data-i18n-placeholder="pomo.break_popup" maxlength="30">
+                </div>
+                <div class="settings-row col">
+                  <span data-i18n="settings.focus_text">Focus popup text</span>
+                  <input type="text" id="focus-popup-text" class="settings-input"
+                         data-i18n-placeholder="pomo.focus_popup" maxlength="30">
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <button id="btn-pin" class="win-btn" title="Toggle Always on Top">
           <img class="icon-pin" src="images/TuDing_logo.png" alt="" />
@@ -80,55 +123,6 @@
       <div class="break-popup-content">
         <p class="break-popup-text" id="break-popup-text">休息时间，起立！</p>
         <button id="btn-break-go" class="pomo-btn start">去活动</button>
-      </div>
-    </div>
-
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="settings-modal">
-      <div class="settings-modal-content">
-        <div class="settings-modal-header">
-          <h3 data-i18n="settings.title">Settings</h3>
-          <button id="btn-settings-close" class="settings-close-btn">&times;</button>
-        </div>
-        <div class="settings-modal-body">
-          <!-- Language & Time Format -->
-          <div class="settings-row">
-            <span data-i18n="lang.label">Language</span>
-            <button id="btn-lang" class="toggle-btn" data-i18n="lang.label">中文</button>
-          </div>
-          <div class="settings-row">
-            <span data-i18n="settings.format">Time Format</span>
-            <button id="btn-format" class="toggle-btn">24小时</button>
-          </div>
-          <div class="settings-separator"></div>
-          <!-- Auto-start -->
-          <div class="settings-row">
-            <span data-i18n="settings.autostart">Launch on boot</span>
-            <button id="btn-autostart" class="toggle-btn">关</button>
-          </div>
-          <div class="settings-separator"></div>
-          <!-- Opacity slider -->
-          <div class="settings-row">
-            <span data-i18n="settings.opacity">Opacity</span>
-            <div class="slider-wrap">
-              <input type="range" id="opacity-slider" min="0" max="100" value="72">
-              <span id="opacity-value">72%</span>
-            </div>
-          </div>
-          <div class="settings-separator"></div>
-          <!-- Break popup text -->
-          <div class="settings-row col">
-            <span data-i18n="settings.break_text">Break popup text</span>
-            <input type="text" id="break-popup-text-input" class="settings-input"
-                   data-i18n-placeholder="pomo.break_popup" maxlength="30">
-          </div>
-          <!-- Focus popup text -->
-          <div class="settings-row col">
-            <span data-i18n="settings.focus_text">Focus popup text</span>
-            <input type="text" id="focus-popup-text" class="settings-input"
-                   data-i18n-placeholder="pomo.focus_popup" maxlength="30">
-          </div>
-        </div>
       </div>
     </div>
 

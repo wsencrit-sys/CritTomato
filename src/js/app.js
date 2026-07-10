@@ -228,8 +228,11 @@ class App {
 
     // ── Modal open/close ──
     btnClose.addEventListener('click', () => modal.classList.remove('show'));
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) modal.classList.remove('show');
+    // Close when clicking outside the modal
+    document.addEventListener('click', (e) => {
+      if (modal.classList.contains('show') && !e.target.closest('#settings-modal') && !e.target.closest('#btn-settings')) {
+        modal.classList.remove('show');
+      }
     });
 
     // ── Language toggle ──
