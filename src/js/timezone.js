@@ -20,7 +20,7 @@ const TZ_PRESETS = [
   { id: 'Europe/Moscow',       city: 'Moscow' },
   { id: 'Asia/Dubai',          city: 'Dubai' },
   { id: 'Asia/Kolkata',        city: 'Mumbai' },
-  { id: 'Asia/Shanghai',       city: 'Shanghai' },
+  { id: 'Asia/Shanghai',       city: 'Beijing' },
   { id: 'Asia/Tokyo',          city: 'Tokyo' },
   { id: 'Asia/Seoul',          city: 'Seoul' },
   { id: 'Asia/Singapore',      city: 'Singapore' },

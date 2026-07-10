@@ -16,8 +16,8 @@ export class Pomodoro {
     this.status = 'idle';  // idle | running | paused | break
     this.workMinutes = 45;
     this.breakMinutes = 5;
-    this.remainingSeconds = 25 * 60;
-    this.totalSeconds = 25 * 60;
+    this.remainingSeconds = 45 * 60;
+    this.totalSeconds = 45 * 60;
     this.tomatoCount = 0;
     this.timer = null;
 
@@ -137,7 +137,7 @@ export class Pomodoro {
       this.elBreakPopup.classList.remove('show');
     }
 
-    this.workMinutes = Math.max(1, Math.min(120, parseInt(this.elWorkInput.value, 10) || 25));
+    this.workMinutes = Math.max(1, Math.min(120, parseInt(this.elWorkInput.value, 10) || 45));
     this.breakMinutes = Math.max(1, Math.min(60, parseInt(this.elBreakInput.value, 10) || 5));
     this.remainingSeconds = this.workMinutes * 60;
     this.totalSeconds = this.remainingSeconds;
@@ -284,9 +284,11 @@ export class Pomodoro {
     if (type === 'focus') {
       if (textEl) textEl.textContent = t('pomo.focus_popup');
       this.elBreakGoBtn.textContent = t('pomo.focus_go');
+      this.elBreakGoBtn.classList.remove('break-go');
     } else {
       if (textEl) textEl.textContent = t('pomo.break_popup');
       this.elBreakGoBtn.textContent = t('pomo.break_go');
+      this.elBreakGoBtn.classList.add('break-go');
     }
     if (this.elBreakPopup) {
       this.elBreakPopup.classList.add('show');
@@ -301,9 +303,8 @@ export class Pomodoro {
     }
 
     if (this._popupType === 'focus') {
-      // Break finished → just reset to idle (already done in complete())
-      this.updateDisplay();
-      this.updateRing();
+      // Break finished → auto-start next work session
+      this.startTimer();
     } else {
       // Focus finished → start the break countdown
       this.elCircle.classList.remove('paused');

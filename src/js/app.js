@@ -210,19 +210,8 @@ class App {
     // Toggle always-on-top (pin)
     btnPin.addEventListener('click', async () => {
       this.isPinned = !this.isPinned;
-      btnPin.style.opacity = this.isPinned ? '1' : '0.5';
-      // Swap pin SVG: pinned vs unpinned
-      btnPin.innerHTML = this.isPinned
-        ? `<svg class="icon-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="7" r="2.5" fill="currentColor" stroke="none"/>
-            <line x1="12" y1="9.5" x2="12" y2="22"/>
-            <polyline points="5,14 12,9.5 19,14"/>
-          </svg>`
-        : `<svg class="icon-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="7" r="2.5" fill="currentColor" stroke="none"/>
-            <line x1="12" y1="9.5" x2="12" y2="22"/>
-            <line x1="2" y1="2" x2="22" y2="22"/>
-          </svg>`;
+      const pinImg = btnPin.querySelector('.icon-pin');
+      if (pinImg) pinImg.classList.toggle('unpinned', !this.isPinned);
       try {
         const { getCurrentWindow } = await import('@tauri-apps/api/window');
         await getCurrentWindow().setAlwaysOnTop(this.isPinned);

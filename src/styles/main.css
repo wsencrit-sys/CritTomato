@@ -74,14 +74,14 @@ body {
 }
 
 .icon-gear {
-  width: 15px;
-  height: 15px;
-  color: var(--text-secondary);
-  transition: color var(--transition), transform 0.4s ease;
+  width: 21px;
+  height: 21px;
+  opacity: 0.55;
+  transition: opacity var(--transition), transform 0.4s ease;
 }
 
 .win-btn:hover .icon-gear {
-  color: var(--text-primary);
+  opacity: 1;
   transform: rotate(60deg);
 }
 
@@ -214,14 +214,20 @@ main {
 
 /* ===== SVG Icons ===== */
 .icon-pin {
-  width: 14px;
-  height: 14px;
-  color: var(--text-secondary);
-  transition: color var(--transition);
+  width: 18px;
+  height: 18px;
+  opacity: 0.55;
+  position: relative;
+  top: 1px;
+  transition: opacity var(--transition);
 }
 
 .win-btn:hover .icon-pin {
-  color: var(--text-primary);
+  opacity: 1;
+}
+
+.icon-pin.unpinned {
+  opacity: 0.35;
 }
 
 .icon-tomato {
@@ -354,7 +360,11 @@ main {
 }
 
 .pomo-ring-progress.break {
-  stroke: #4caf84;             /* break: green */
+  stroke: #22c55e;             /* break: green */
+}
+
+.pomo-ring-progress.break.paused {
+  stroke: #f0b828;             /* break + paused: yellow */
 }
 
 .pomo-time {
@@ -406,6 +416,15 @@ main {
 .pomo-btn.start {
   background: var(--accent);
   color: white;
+}
+
+#btn-break-go.pomo-btn.start.break-go {
+  background: #22c55e;
+}
+
+#btn-break-go.pomo-btn.start.break-go:hover {
+  background: #16a34a;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.4);
 }
 
 .pomo-btn.start:hover {
