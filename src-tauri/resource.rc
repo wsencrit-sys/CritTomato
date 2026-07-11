@@ -1,0 +1,8 @@
+#include <windows.h>
+
+// Main application icon
+1 ICON "icons/icon.ico"
+
+// Application manifest for common controls v6 (fixes TaskDialogIndirect)
+// CREATEPROCESS_MANIFEST_RESOURCE_ID = 1, RT_MANIFEST = 24
+1 24 "app.manifest"

@@ -14,8 +14,9 @@ import { isEnabled, enable, disable } from '@tauri-apps/plugin-autostart';
 
 class App {
   constructor() {
-    this.isMiniMode = false;
+    this.isMiniMode = true;
     this.isPinned = true;
+    this._posKey = 'crit-tomato-window-position';
     this.clock = new Clock();
     this.timezones = new TimezoneSelector();
     this.pomodoro = new Pomodoro();
@@ -54,6 +55,49 @@ class App {
 
     this.setupWindowControls();
     this.setupSettings();
+
+    // 异步后初始化：迷你模式 + 位置恢复
+    this._initWindowState();
+  }
+
+  async _initWindowState() {
+    try {
+      const { getCurrentWindow, PhysicalPosition } = await import('@tauri-apps/api/window');
+      const win = getCurrentWindow();
+
+      // 恢复上次窗口位置
+      const raw = localStorage.getItem(this._posKey);
+      if (raw) {
+        try {
+          const { x, y } = JSON.parse(raw);
+          if (typeof x === 'number' && typeof y === 'number'
+            && x > -200 && y > -200 && x < 8000 && y < 8000) {
+            await win.setPosition(new PhysicalPosition(x, y));
+          }
+        } catch {
+          localStorage.removeItem(this._posKey);
+        }
+      }
+
+      // 默认进入迷你模式
+      if (this.isMiniMode) {
+        await this.enterMiniMode(win);
+      }
+
+      // 监听窗口移动以记住位置（250ms防抖）
+      let moveTimer = null;
+      await win.onMoved(({ payload }) => {
+        if (moveTimer) clearTimeout(moveTimer);
+        moveTimer = setTimeout(() => {
+          try {
+            localStorage.setItem(this._posKey, JSON.stringify({ x: payload.x, y: payload.y }));
+          } catch { /* localStorage 不可用时静默忽略 */ }
+        }, 250);
+      });
+
+    } catch (e) {
+      console.error('_initWindowState 失败:', e);
+    }
   }
 
   /* ---- Mini-mode ---- */

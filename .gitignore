@@ -3,6 +3,15 @@ node_modules/
 
 # Build output
 dist/
+dist-portable/
+dist-portable.zip
+*.rar
+
+# WebView2 fixed runtime (too large for git)
+src-tauri/Microsoft.WebView2.FixedVersionRuntime.*/
+
+# Exported assets (not needed in repo)
+exported_icons/
 
 # Rust / Tauri
 src-tauri/target/
