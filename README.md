@@ -11,4 +11,5 @@
 # 7.支持中英文
 # 8.支持桌面置顶
 # 总结：代码小白，自用小工具，可能不是太完善，后续会不定时更新，想用的小伙伴可以拿去玩，纯兴趣分享。
-# <img width="2560" height="1440" alt="jietu" src="https://github.com/user-attachments/assets/8ae2cc50-8d28-42c6-ad2d-b991d5c7f25a" />
+# ![Uploading jietu_v02.png…]()
+
