@@ -51,6 +51,8 @@ const translations = {
     'settings.break_text': 'Break time reminder',
     'settings.on': 'On',
     'settings.off': 'Off',
+    'settings.mini_title': 'Mini Settings',
+    'settings.clock_opacity': 'Opacity',
   },
 
   'zh-CN': {
@@ -96,6 +98,8 @@ const translations = {
     'settings.break_text': '休息时间提示',
     'settings.on': '开',
     'settings.off': '关',
+    'settings.mini_title': '迷你设置',
+    'settings.clock_opacity': '透明度',
   },
 };
 

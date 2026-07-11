@@ -66,6 +66,18 @@
         <button id="btn-minimize" class="win-btn" title="Minimize to Tray">─</button>
       </div>
     </header>
+    <!-- Mini Settings Modal — outside titlebar to avoid drag-region capture -->
+    <div id="settings-modal-mini" class="settings-modal settings-modal-mini">
+      <div class="settings-modal-content">
+        <div class="settings-modal-header">
+          <h3 data-i18n="settings.clock_opacity">透明度</h3>
+          <div class="slider-wrap">
+            <input type="range" id="clock-opacity-slider" min="20" max="100" value="100">
+            <span id="clock-opacity-value">100%</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <main>
       <!-- Main Clock -->

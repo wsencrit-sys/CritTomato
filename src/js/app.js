@@ -194,11 +194,13 @@ class App {
     // Toggle mini-mode
     btnMin.addEventListener('click', () => this.toggleMiniMode());
 
-    // Toggle settings modal
+    // Toggle settings modal — click only for panel mode
     const settingsModal = document.getElementById('settings-modal');
     btnSettings.addEventListener('click', (e) => {
       e.stopPropagation();
-      settingsModal.classList.add('show');
+      if (!this.isMiniMode) {
+        settingsModal.classList.add('show');
+      }
     });
 
     // Toggle always-on-top (pin)
@@ -235,6 +237,46 @@ class App {
       }
     });
 
+    // ── Mini settings modal (click gear to open, leave panel to close) ──
+    const modalMini = document.getElementById('settings-modal-mini');
+    const clockOpacitySlider = document.getElementById('clock-opacity-slider');
+    const clockOpacityValue = document.getElementById('clock-opacity-value');
+    const btnGear = document.getElementById('btn-settings');
+    let miniCloseTimer = null;
+
+    // Click gear → toggle open/close
+    btnGear.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!this.isMiniMode) return;
+      if (modalMini.classList.contains('show')) {
+        modalMini.classList.remove('show');
+      } else {
+        modalMini.classList.add('show');
+      }
+    });
+    // Enter panel → stay open
+    modalMini.addEventListener('mouseenter', () => {
+      clearTimeout(miniCloseTimer);
+    });
+    // Leave panel → close
+    modalMini.addEventListener('mouseleave', () => {
+      miniCloseTimer = setTimeout(() => {
+        modalMini.classList.remove('show');
+      }, 250);
+    });
+
+    // ── Clock font opacity (mini mode) ──
+    const applyClockOpacity = (v) => {
+      const pct = parseInt(v, 10);
+      document.documentElement.style.setProperty('--mini-clock-opacity', String(pct / 100));
+      clockOpacityValue.textContent = pct + '%';
+      localStorage.setItem('crit-tomato-clock-opacity', String(pct));
+    };
+    const savedClockOpacity = localStorage.getItem('crit-tomato-clock-opacity') || '100';
+    clockOpacitySlider.value = savedClockOpacity;
+    applyClockOpacity(savedClockOpacity);
+    clockOpacitySlider.addEventListener('input', () => applyClockOpacity(clockOpacitySlider.value));
+
     // ── Language toggle ──
     const updateLangBtn = () => {
       btnLang.textContent = getLang() === 'zh-CN' ? '中文' : 'English';
@@ -250,6 +292,7 @@ class App {
       this.pomodoro.refresh();
       // Refresh settings modal i18n bindings
       bindI18n(modal);
+      bindI18n(modalMini);
     });
 
     // ── 24h format toggle (syncs with clock.js) ──

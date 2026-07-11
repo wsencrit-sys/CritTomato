@@ -25,6 +25,7 @@
   --font-sans: 'Sarasa Gothic SC', system-ui, sans-serif;
   --transition: 0.25s ease;
   --glass-blur: 24px;
+  --mini-clock-opacity: 1;
 }
 
 /* ===== Reset ===== */
@@ -753,6 +754,41 @@ body.mini-mode:hover .resize-grip {
   border-color: var(--accent);
 }
 
+/* Mini mode settings — left aligns with window left, right aligns with gear button right */
+body.mini-mode .settings-modal-mini {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 68px;
+  z-index: 151;
+}
+
+.settings-modal-mini .settings-modal-content {
+  width: auto;
+  background: rgba(28, 28, 32, 0.70);
+}
+
+.settings-modal-mini .settings-modal-header {
+  padding: 4px 10px;
+  border-bottom: none;
+  gap: 8px;
+}
+.settings-modal-mini .settings-modal-header h3 {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.settings-modal-mini .slider-wrap input[type="range"] {
+  width: 60px;
+}
+
+.settings-modal-mini #clock-opacity-value {
+  font-size: 10px;
+  min-width: 24px;
+}
+
 /* ===== Animations ===== */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
@@ -848,8 +884,8 @@ body.mini-mode:hover main {
 
 /* ── 7. Clock digit styling ── */
 body.mini-mode .clock-section { padding: 0; text-align: center; }
-body.mini-mode .time   { font-size: 36px; text-shadow: none; letter-spacing: 2px; }
-body.mini-mode .date   { font-size: 11px; text-shadow: none; color: var(--text-primary); letter-spacing: 1px; }
+body.mini-mode .time   { font-size: 36px; text-shadow: none; letter-spacing: 2px; opacity: var(--mini-clock-opacity); }
+body.mini-mode .date   { font-size: 11px; text-shadow: none; color: var(--text-primary); letter-spacing: 1px; opacity: var(--mini-clock-opacity); }
 
 /* ── 8. Pomodoro in mini mode (keep original ring size) ── */
 body.mini-mode #pomodoro.mini-visible {
