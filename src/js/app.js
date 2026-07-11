@@ -67,6 +67,9 @@ class App {
   async enterMiniMode(win) {
     const pomoActive = this.pomodoro.status !== 'idle';
 
+    // Close main settings modal if open
+    document.getElementById('settings-modal').classList.remove('show');
+
     // Apply CSS class IMMEDIATELY (before any await)
     document.body.classList.add('mini-mode');
     document.getElementById('btn-minimize').textContent = '☰';
@@ -77,7 +80,7 @@ class App {
 
     // Then shrink window (may fail but hiding already done)
     try {
-      const height = pomoActive ? 270 : 100;
+      const height = pomoActive ? 280 : 110;
       await win.setSize({ type: 'Logical', width: 220, height });
       await win.setMinSize({ type: 'Logical', width: 140, height: 80 });
       await win.setResizable(false);
@@ -93,12 +96,16 @@ class App {
     // Listen for pomodoro state changes
     this._pomoHandler = (e) => {
       const pomo = document.getElementById('pomodoro');
+      const breakPopup = document.getElementById('break-popup');
       if (e.detail.status !== 'idle') {
         pomo.classList.add('mini-visible');
-        this._adjustMiniSize(win, 270);
+        this._adjustMiniSize(win, 280);
       } else {
         pomo.classList.remove('mini-visible');
-        this._adjustMiniSize(win, 100);
+        // 弹窗显示中不缩小窗口，保持和专注弹窗一样的大小
+        if (!breakPopup || !breakPopup.classList.contains('show')) {
+          this._adjustMiniSize(win, 110);
+        }
       }
     };
     document.addEventListener('pomodoro-state', this._pomoHandler);
@@ -150,6 +157,9 @@ class App {
   }
 
   async exitMiniMode(win) {
+    // Close mini settings modal if open
+    document.getElementById('settings-modal-mini').classList.remove('show');
+
     // ── Restore DOM IMMEDIATELY (before any await) ──
     document.body.classList.remove('mini-mode');
     document.getElementById('btn-minimize').textContent = '─';
@@ -169,7 +179,7 @@ class App {
 
     // Then resize window back (may fail but DOM is already restored)
     try {
-      await win.setSize({ type: 'Logical', width: 320, height: 590 });
+      await win.setSize({ type: 'Logical', width: 320, height: 592 });
       await win.setMinSize({ type: 'Logical', width: 0, height: 0 });
       await win.setResizable(true);
     } catch (e) {
@@ -194,15 +204,6 @@ class App {
     // Toggle mini-mode
     btnMin.addEventListener('click', () => this.toggleMiniMode());
 
-    // Toggle settings modal — click only for panel mode
-    const settingsModal = document.getElementById('settings-modal');
-    btnSettings.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (!this.isMiniMode) {
-        settingsModal.classList.add('show');
-      }
-    });
-
     // Toggle always-on-top (pin)
     btnPin.addEventListener('click', async () => {
       this.isPinned = !this.isPinned;
@@ -219,7 +220,6 @@ class App {
 
   setupSettings() {
     const modal = document.getElementById('settings-modal');
-    const btnClose = document.getElementById('btn-settings-close');
     const btnLang = document.getElementById('btn-lang');
     const btnFormat = document.getElementById('btn-format');
     const btnAutostart = document.getElementById('btn-autostart');
@@ -228,20 +228,38 @@ class App {
     const focusInput = document.getElementById('focus-popup-text');
     const breakInput = document.getElementById('break-popup-text-input');
 
-    // ── Modal open/close ──
-    btnClose.addEventListener('click', () => modal.classList.remove('show'));
-    // Close when clicking outside the modal
-    document.addEventListener('click', (e) => {
-      if (modal.classList.contains('show') && !e.target.closest('#settings-modal') && !e.target.closest('#btn-settings')) {
+    // ── Modal open/close — leave panel to close (with delay to bridge gap) ──
+    let modalCloseTimer = null;
+    const btnGear = document.getElementById('btn-settings');
+    btnGear.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (this.isMiniMode) return;
+      clearTimeout(modalCloseTimer);
+      modal.classList.add('show');
+    });
+    btnGear.addEventListener('mouseenter', () => {
+      if (this.isMiniMode) return;
+      clearTimeout(modalCloseTimer);
+    });
+    btnGear.addEventListener('mouseleave', () => {
+      if (this.isMiniMode) return;
+      modalCloseTimer = setTimeout(() => {
         modal.classList.remove('show');
-      }
+      }, 250);
+    });
+    modal.addEventListener('mouseenter', () => {
+      clearTimeout(modalCloseTimer);
+    });
+    modal.addEventListener('mouseleave', () => {
+      modalCloseTimer = setTimeout(() => {
+        modal.classList.remove('show');
+      }, 250);
     });
 
     // ── Mini settings modal (click gear to open, leave panel to close) ──
     const modalMini = document.getElementById('settings-modal-mini');
     const clockOpacitySlider = document.getElementById('clock-opacity-slider');
     const clockOpacityValue = document.getElementById('clock-opacity-value');
-    const btnGear = document.getElementById('btn-settings');
     let miniCloseTimer = null;
 
     // Click gear → toggle open/close
@@ -265,17 +283,39 @@ class App {
       }, 250);
     });
 
-    // ── Clock font opacity (mini mode) ──
-    const applyClockOpacity = (v) => {
-      const pct = parseInt(v, 10);
-      document.documentElement.style.setProperty('--mini-clock-opacity', String(pct / 100));
-      clockOpacityValue.textContent = pct + '%';
+    // ── Clock font opacity (mini mode) — 0=fully opaque, 100=fully transparent ──
+    const clampAndApply = (v) => {
+      let pct = parseInt(v, 10);
+      if (isNaN(pct) || pct < 0) pct = 0;
+      if (pct > 90) pct = 90;
+      document.documentElement.style.setProperty('--mini-clock-opacity', String((100 - pct) / 100));
+      clockOpacitySlider.value = pct;
+      clockOpacityValue.value = pct;
       localStorage.setItem('crit-tomato-clock-opacity', String(pct));
     };
-    const savedClockOpacity = localStorage.getItem('crit-tomato-clock-opacity') || '100';
+    const savedClockOpacity = localStorage.getItem('crit-tomato-clock-opacity') || '20';
     clockOpacitySlider.value = savedClockOpacity;
-    applyClockOpacity(savedClockOpacity);
-    clockOpacitySlider.addEventListener('input', () => applyClockOpacity(clockOpacitySlider.value));
+    clockOpacityValue.value = savedClockOpacity;
+    clampAndApply(savedClockOpacity);
+    // Slider → sync in real-time
+    clockOpacitySlider.addEventListener('input', () => {
+      const v = clockOpacitySlider.value;
+      clockOpacityValue.value = v;
+      clampAndApply(v);
+    });
+    // Number input → allow free typing, apply on blur/enter
+    clockOpacityValue.addEventListener('change', () => {
+      clampAndApply(clockOpacityValue.value);
+    });
+    clockOpacityValue.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        clockOpacityValue.blur();
+      }
+    });
+    // Block window drag on slider interaction
+    clockOpacitySlider.addEventListener('mousedown', (e) => {
+      e.stopPropagation();
+    });
 
     // ── Language toggle ──
     const updateLangBtn = () => {
@@ -328,18 +368,37 @@ class App {
       }
     });
 
-    // ── Opacity slider ──
-    const applyOpacity = (v) => {
-      const pct = parseInt(v, 10);
-      document.documentElement.style.setProperty('--bg-primary', `rgba(18, 18, 20, ${pct / 100})`);
-      document.documentElement.style.setProperty('--bg-surface', `rgba(28, 28, 32, ${(pct * 0.76) / 100})`);
-      opacityValue.textContent = pct + '%';
+    // ── Opacity slider — 0=fully opaque, 100=fully transparent ──
+    const clampAndApplyOpacity = (v) => {
+      let pct = parseInt(v, 10);
+      if (isNaN(pct) || pct < 0) pct = 0;
+      if (pct > 100) pct = 100;
+      const opacity = (100 - pct) / 100;
+      document.documentElement.style.setProperty('--bg-primary', `rgba(18, 18, 20, ${opacity})`);
+      document.documentElement.style.setProperty('--bg-surface', `rgba(28, 28, 32, ${opacity * 0.76})`);
+      opacitySlider.value = pct;
+      opacityValue.value = pct;
       localStorage.setItem('crit-tomato-opacity', String(pct));
     };
-    const savedOpacity = localStorage.getItem('crit-tomato-opacity') || '72';
+    const savedOpacity = localStorage.getItem('crit-tomato-opacity') || '50';
     opacitySlider.value = savedOpacity;
-    applyOpacity(savedOpacity);
-    opacitySlider.addEventListener('input', () => applyOpacity(opacitySlider.value));
+    opacityValue.value = savedOpacity;
+    clampAndApplyOpacity(savedOpacity);
+    // Slider → sync in real-time
+    opacitySlider.addEventListener('input', () => {
+      const v = opacitySlider.value;
+      opacityValue.value = v;
+      clampAndApplyOpacity(v);
+    });
+    // Number input → free typing, apply on blur/enter
+    opacityValue.addEventListener('change', () => {
+      clampAndApplyOpacity(opacityValue.value);
+    });
+    opacityValue.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        opacityValue.blur();
+      }
+    });
 
     // ── Custom popup text ──
     const savedFocus = localStorage.getItem('crit-tomato-focus-text') || '';

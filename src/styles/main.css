@@ -9,8 +9,8 @@
 
 /* ===== CSS Custom Properties ===== */
 :root {
-  --bg-primary: rgba(18, 18, 20, 0.72);
-  --bg-surface: rgba(28, 28, 32, 0.55);
+  --bg-primary: rgba(18, 18, 20, 0.50);
+  --bg-surface: rgba(28, 28, 32, 0.38);
   --bg-hover: rgba(42, 42, 48, 0.7);
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.52);
@@ -25,7 +25,7 @@
   --font-sans: 'Sarasa Gothic SC', system-ui, sans-serif;
   --transition: 0.25s ease;
   --glass-blur: 24px;
-  --mini-clock-opacity: 1;
+  --mini-clock-opacity: 0.8;
 }
 
 /* ===== Reset ===== */
@@ -164,6 +164,7 @@ body {
   align-items: center;
   justify-content: center;
   transition: all var(--transition);
+  outline: none;
 }
 
 .win-btn:hover {
@@ -203,7 +204,7 @@ main {
 }
 
 .date {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-secondary);
   margin-top: 4px;
   letter-spacing: 1px;
@@ -558,6 +559,7 @@ body.mini-mode:hover .resize-grip {
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  width: 220px;
 }
 
 .break-popup-text {
@@ -570,7 +572,7 @@ body.mini-mode:hover .resize-grip {
 .settings-modal {
   display: none;
   position: absolute;
-  top: -6px;
+  top: 0;
   right: 0;
   z-index: 150;
 }
@@ -580,14 +582,14 @@ body.mini-mode:hover .resize-grip {
 }
 
 .settings-modal-content {
-  width: 244px;
+  width: 238px;
   max-height: 420px;
   overflow-y: auto;
   background: rgba(28, 28, 32, 0.70);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   padding: 0;
 }
 
@@ -719,10 +721,17 @@ body.mini-mode:hover .resize-grip {
 }
 
 #opacity-value {
+  -webkit-appearance: none;
+  appearance: none;
   font-size: 12px;
   font-family: var(--font-mono);
   color: var(--text-secondary);
-  min-width: 32px;
+  width: 32px;
+  padding: 0 2px;
+  text-align: center;
+  background: transparent;
+  border: none;
+  outline: none;
 }
 
 /* Separator */
@@ -756,11 +765,22 @@ body.mini-mode:hover .resize-grip {
 
 /* Mini mode settings — left aligns with window left, right aligns with gear button right */
 body.mini-mode .settings-modal-mini {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 68px;
   z-index: 151;
+  -webkit-app-region: no-drag;
+  pointer-events: auto;
+}
+
+.settings-modal-mini,
+.settings-modal-mini .settings-modal-content,
+.settings-modal-mini .settings-modal-header,
+.settings-modal-mini .slider-wrap,
+.settings-modal-mini input[type="range"] {
+  -webkit-app-region: no-drag;
+  pointer-events: auto;
 }
 
 .settings-modal-mini .settings-modal-content {
@@ -784,9 +804,20 @@ body.mini-mode .settings-modal-mini {
   width: 60px;
 }
 
-.settings-modal-mini #clock-opacity-value {
+.settings-modal-mini .clock-opacity-input {
+  -webkit-appearance: none;
+  appearance: none;
   font-size: 10px;
-  min-width: 24px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  width: 28px;
+  padding: 0;
+  text-align: center;
+  background: transparent;
+  border: none;
+  outline: none;
+  -webkit-app-region: no-drag;
+  pointer-events: auto;
 }
 
 /* ===== Animations ===== */
@@ -885,7 +916,7 @@ body.mini-mode:hover main {
 /* ── 7. Clock digit styling ── */
 body.mini-mode .clock-section { padding: 0; text-align: center; }
 body.mini-mode .time   { font-size: 36px; text-shadow: none; letter-spacing: 2px; opacity: var(--mini-clock-opacity); }
-body.mini-mode .date   { font-size: 11px; text-shadow: none; color: var(--text-primary); letter-spacing: 1px; opacity: var(--mini-clock-opacity); }
+body.mini-mode .date   { font-size: 13px; text-shadow: none; color: var(--text-primary); letter-spacing: 1px; opacity: var(--mini-clock-opacity); }
 
 /* ── 8. Pomodoro in mini mode (keep original ring size) ── */
 body.mini-mode #pomodoro.mini-visible {
@@ -910,6 +941,10 @@ body.mini-mode #pomodoro.mini-visible .pomo-settings,
 body.mini-mode #pomodoro.mini-visible .pomo-counter,
 body.mini-mode #pomodoro.mini-visible .section-header { display: none !important; }
 
+/* Ring & countdown follow clock opacity */
+body.mini-mode #pomodoro.mini-visible .pomo-ring-container {
+  opacity: var(--mini-clock-opacity);
+}
 /* Controls: hidden by default, shown on hover */
 body.mini-mode #pomodoro.mini-visible .pomo-controls {
   opacity: 0;
@@ -917,6 +952,6 @@ body.mini-mode #pomodoro.mini-visible .pomo-controls {
   transition: opacity 0.25s ease;
 }
 body.mini-mode:hover #pomodoro.mini-visible .pomo-controls {
-  opacity: 1;
+  opacity: var(--mini-clock-opacity);
   pointer-events: auto;
 }
