@@ -39,6 +39,19 @@ class App {
       this.clock.setTimezone({ id: e.detail.id, city: e.detail.city });
     });
 
+    // Adjust window height on format change (12h needs more height for AM/PM)
+    document.addEventListener('format-change', async (e) => {
+      // Update mini time font-size: 12h needs smaller font to fit 220px width
+      document.documentElement.style.setProperty('--mini-time-font-size', e.detail.use24h ? '36px' : '30px');
+      if (this.isMiniMode) {
+        const pomoActive = this.pomodoro.status !== 'idle';
+        const { getCurrentWindow } = await import('@tauri-apps/api/window');
+        await getCurrentWindow().setSize({ type: 'Logical', width: 220, height: this._getMiniHeight(pomoActive) });
+      } else {
+        this._adjustNormalHeight(e.detail.use24h);
+      }
+    });
+
     this.setupWindowControls();
     this.setupSettings();
   }
@@ -80,7 +93,7 @@ class App {
 
     // Then shrink window (may fail but hiding already done)
     try {
-      const height = pomoActive ? 280 : 110;
+      const height = this._getMiniHeight(pomoActive);
       await win.setSize({ type: 'Logical', width: 220, height });
       await win.setMinSize({ type: 'Logical', width: 140, height: 80 });
       await win.setResizable(false);
@@ -99,12 +112,12 @@ class App {
       const breakPopup = document.getElementById('break-popup');
       if (e.detail.status !== 'idle') {
         pomo.classList.add('mini-visible');
-        this._adjustMiniSize(win, 280);
+        this._adjustMiniSize(win, this._getMiniHeight(true));
       } else {
         pomo.classList.remove('mini-visible');
         // 弹窗显示中不缩小窗口，保持和专注弹窗一样的大小
         if (!breakPopup || !breakPopup.classList.contains('show')) {
-          this._adjustMiniSize(win, 110);
+          this._adjustMiniSize(win, this._getMiniHeight(false));
         }
       }
     };
@@ -179,7 +192,8 @@ class App {
 
     // Then resize window back (may fail but DOM is already restored)
     try {
-      await win.setSize({ type: 'Logical', width: 320, height: 592 });
+      const height = this.clock.use24h ? 592 : 648;
+      await win.setSize({ type: 'Logical', width: 320, height });
       await win.setMinSize({ type: 'Logical', width: 0, height: 0 });
       await win.setResizable(true);
     } catch (e) {
@@ -191,6 +205,21 @@ class App {
     if (!this.isMiniMode) return;
     try {
       await win.setSize({ type: 'Logical', width: 220, height: h });
+    } catch { /* ignore */ }
+  }
+
+  /** Get mini-mode window height based on pomodoro state (font-size handles 12h/24h fitting) */
+  _getMiniHeight(pomoActive) {
+    return pomoActive ? 280 : 110;
+  }
+
+  /** Adjust normal-mode window height: 24h→592, 12h→648 (AM/PM wraps to extra line) */
+  async _adjustNormalHeight(use24h) {
+    if (this.isMiniMode) return;
+    const height = use24h ? 592 : 648;
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window');
+      await getCurrentWindow().setSize({ type: 'Logical', width: 320, height });
     } catch { /* ignore */ }
   }
 
@@ -207,8 +236,7 @@ class App {
     // Toggle always-on-top (pin)
     btnPin.addEventListener('click', async () => {
       this.isPinned = !this.isPinned;
-      const pinImg = btnPin.querySelector('.icon-pin');
-      if (pinImg) pinImg.classList.toggle('unpinned', !this.isPinned);
+      btnPin.classList.toggle('unpinned', !this.isPinned);
       try {
         const { getCurrentWindow } = await import('@tauri-apps/api/window');
         await getCurrentWindow().setAlwaysOnTop(this.isPinned);

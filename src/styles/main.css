@@ -228,8 +228,44 @@ main {
   opacity: 1;
 }
 
-.icon-pin.unpinned {
-  opacity: 0.35;
+.icon-pin.unpinned,
+#btn-pin.unpinned .icon-pin {
+  opacity: 0.25;
+}
+
+/* Unpinned state: circle-slash prohibition symbol */
+#btn-pin {
+  position: relative;
+}
+#btn-pin.unpinned::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  transform: translateX(-50%) rotate(0deg);
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  background: linear-gradient(
+    to bottom left,
+    transparent calc(50% - 0.65px),
+    var(--accent) calc(50% - 0.65px),
+    var(--accent) calc(50% + 0.65px),
+    transparent calc(50% + 0.65px)
+  );
+  pointer-events: none;
+  opacity: 0.7;
+  transition: transform 0.5s ease;
+  animation: pin-slash-in 0.6s ease-out;
+}
+#btn-pin.unpinned:hover::after {
+  transform: translateX(-50%) rotate(90deg);
+}
+
+@keyframes pin-slash-in {
+  from { transform: translateX(-50%) rotate(90deg); opacity: 0; }
+  to   { transform: translateX(-50%) rotate(0deg); opacity: 0.7; }
 }
 
 .icon-tomato {
@@ -708,9 +744,9 @@ body.mini-mode:hover .resize-grip {
 .slider-wrap input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
+  width: 12px;
+  height: 6px;
+  border-radius: 3px;
   background: var(--accent);
   cursor: pointer;
   transition: transform var(--transition);
@@ -915,7 +951,7 @@ body.mini-mode:hover main {
 
 /* ── 7. Clock digit styling ── */
 body.mini-mode .clock-section { padding: 0; text-align: center; }
-body.mini-mode .time   { font-size: 36px; text-shadow: none; letter-spacing: 2px; opacity: var(--mini-clock-opacity); }
+body.mini-mode .time   { font-size: var(--mini-time-font-size, 36px); text-shadow: none; letter-spacing: 2px; opacity: var(--mini-clock-opacity); }
 body.mini-mode .date   { font-size: 13px; text-shadow: none; color: var(--text-primary); letter-spacing: 1px; opacity: var(--mini-clock-opacity); }
 
 /* ── 8. Pomodoro in mini mode (keep original ring size) ── */

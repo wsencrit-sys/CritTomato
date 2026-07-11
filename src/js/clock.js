@@ -24,6 +24,7 @@ export class Clock {
       this.use24h = !this.use24h;
       this.updateFormatBtn();
       this.tick();
+      document.dispatchEvent(new CustomEvent('format-change', { detail: { use24h: this.use24h } }));
     });
   }
 
