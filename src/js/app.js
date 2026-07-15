@@ -11,6 +11,7 @@ import { Clock } from './clock.js';
 import { TimezoneSelector } from './timezone.js';
 import { Pomodoro } from './pomodoro.js';
 import { isEnabled, enable, disable } from '@tauri-apps/plugin-autostart';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 
 class App {
   constructor() {
@@ -55,6 +56,7 @@ class App {
 
     this.setupWindowControls();
     this.setupSettings();
+    this.setupMiniContextMenu();
 
     // 异步后初始化：迷你模式 + 位置恢复
     this._initWindowState();
@@ -101,6 +103,31 @@ class App {
   }
 
   /* ---- Mini-mode ---- */
+
+  /**
+   * 拖拽与右键切换。
+   * 普通模式：标题栏 CSS drag 原生处理；迷你模式：JS startDragging 处理拖拽 + 右键切换按钮。
+   */
+  setupMiniContextMenu() {
+    // 迷你模式左键拖拽
+    document.addEventListener('mousedown', (e) => {
+      if (!this.isMiniMode || e.button !== 0) return;
+      // 按钮/输入框/设置面板上不拖拽
+      if (e.target.closest('button, input, select, .settings-modal-mini, .settings-modal')) return;
+      getCurrentWindow().startDragging();
+    });
+
+    // 迷你模式右键切换按钮
+    document.addEventListener('mouseup', (e) => {
+      if (!this.isMiniMode || e.button !== 2) return;
+      document.body.classList.toggle('controls-visible');
+    });
+
+    // 阻止迷你模式右键系统菜单
+    document.addEventListener('contextmenu', (e) => {
+      if (this.isMiniMode) e.preventDefault();
+    });
+  }
 
   async toggleMiniMode() {
     this.isMiniMode = !this.isMiniMode;
@@ -219,6 +246,7 @@ class App {
 
     // ── Restore DOM IMMEDIATELY (before any await) ──
     document.body.classList.remove('mini-mode');
+    document.body.classList.remove('controls-visible');
     document.getElementById('btn-minimize').textContent = '─';
     document.getElementById('pomodoro').classList.remove('mini-visible');
 

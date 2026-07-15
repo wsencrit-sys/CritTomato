@@ -566,7 +566,7 @@ body.mini-mode .resize-grip {
   display: block;
 }
 
-body.mini-mode:hover .resize-grip {
+body.mini-mode.controls-visible .resize-grip {
   opacity: 1;
   pointer-events: auto;
 }
@@ -902,16 +902,17 @@ body.mini-mode #titlebar {
   padding: 2px 4px;
   opacity: 0;
   pointer-events: none;
+  -webkit-app-region: no-drag;
   transition: opacity 0.25s ease;
 }
 
-/* ── 2. main: fill window, center clock only ── */
+/* ── 2. main: fill window, align content to top ── */
 body.mini-mode main {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  padding: 0;
+  padding: 6px 0 0;
   gap: 0;
   overflow: hidden;
 }
@@ -927,13 +928,13 @@ body.mini-mode .resize-grip {
   display: none !important;
 }
 
-/* ── 6. Hover reveals ── */
-body.mini-mode:hover #titlebar {
+/* ── 6. Right-click reveals controls ── */
+body.mini-mode.controls-visible #titlebar {
   opacity: 1;
   pointer-events: auto;
 }
 
-body.mini-mode:hover .window-controls { opacity: 1; pointer-events: auto; }
+body.mini-mode.controls-visible .window-controls { opacity: 1; pointer-events: auto; }
 
 body.mini-mode .window-controls {
   opacity: 0;
@@ -941,11 +942,11 @@ body.mini-mode .window-controls {
   transition: opacity 0.25s ease;
 }
 
-/* Hover: push clock down so it doesn't overlap with revealed titlebar */
+/* Push clock down when controls visible so it doesn't overlap */
 body.mini-mode main {
   transition: padding-top 0.25s ease;
 }
-body.mini-mode:hover main {
+body.mini-mode.controls-visible main {
   padding-top: 30px;
 }
 
@@ -981,13 +982,14 @@ body.mini-mode #pomodoro.mini-visible .section-header { display: none !important
 body.mini-mode #pomodoro.mini-visible .pomo-ring-container {
   opacity: var(--mini-clock-opacity);
 }
-/* Controls: hidden by default, shown on hover */
+/* Controls: hidden by default, shown on right-click */
 body.mini-mode #pomodoro.mini-visible .pomo-controls {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
+  -webkit-app-region: no-drag;
 }
-body.mini-mode:hover #pomodoro.mini-visible .pomo-controls {
+body.mini-mode.controls-visible #pomodoro.mini-visible .pomo-controls {
   opacity: var(--mini-clock-opacity);
   pointer-events: auto;
 }
